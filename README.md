@@ -1,4 +1,4 @@
-ES-Client
+Elastic Search query client
 =========
 
 Elastic search client tool for easy search, edit and delete Index documents.
