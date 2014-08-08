@@ -25,19 +25,19 @@ I really hope the tool is very intutive to use, if not, below steps should get y
 
 After configuration follow below steps
 
-1) Click connect to connect to your elastic search cluster
-2) All the available Index in your cluster would be populated in the Index drop down, select one
-3) Then select the Type and fields you want to search on
-4) Enter the Lucene query (Not DSL) you want to use for searching.
-4) Hit search to see the results. 
+1. Click connect to connect to your elastic search cluster
+2. All the available Index in your cluster would be populated in the Index drop down, select one
+3. Then select the Type and fields you want to search on
+4. Enter the Lucene query (Not DSL) you want to use for searching.
+5. Hit search to see the results. 
 
 ###Sorting documents:
 
-1) Select the field you want to sort and click search
+- Select the field you want to sort and click search
 
 ###Deleting documents:
 
-1) click on the row(s) you want to delete and hit delete button and confirm your selection to delete rows.
+- click on the row(s) you want to delete and hit delete button and confirm your selection to delete rows.
 
 ###Delete by Query:
 
