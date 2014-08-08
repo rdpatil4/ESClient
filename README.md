@@ -45,12 +45,12 @@ You can delete multiple rows by query using the "Delete By Query" button. The qu
 
 ###Editing documents:
 
-1) Double click the row you want to edit. You should see the raw json in the window. Click the edit
-   button to edit the document.
+- Double click the row you want to edit. You should see the raw json in the window. Click the edit
+  button to edit the document.
   
-###Known Issues:
+###Known Limitation:
 
-The tool does not use routing and if you have routing keys, you cannot use editing features of this tool.
+The tool does not use routing and if you are using routing keys, you cannot use editing features of this tool.
 
 
 
