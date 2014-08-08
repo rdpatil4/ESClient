@@ -11,11 +11,9 @@ The resuls are presented in tabular format instead of JSON for easy reading.
 Configuraiton is done in the file **config.js** found in the root folder
 Default config. looks like below
 
-
-*var ESClientConfig = *
-{
+{</br>
    *'SERVER_URL':'http://localhost:9200',*
-   *'Theme':'Blitzer'*
+   *'Theme':'Blitzer'*</br>
 }
 
 You can change the location of your Elastic Search node and port and you are good to go.
