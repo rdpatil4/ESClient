@@ -12,7 +12,7 @@ Configuraiton is done in the file **config.js** found in the root folder
 Default config. looks like below
 
 {</br>
-   *'SERVER_URL':'http://localhost:9200',*
+   *'SERVER_URL':'http://localhost:9200',*</br>
    *'Theme':'Blitzer'*</br>
 }
 
