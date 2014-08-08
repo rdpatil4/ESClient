@@ -1,0 +1,1046 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>ES UI</title>
+		<style type="text/css" title="currentStyle">
+			@import "./media/css/demo_table.css";
+			@import "./media/css/jquery.multiselect.css";
+			@import "./media/css/TableTools.css";
+			@import "./media/css/jquery.multiselect.filter.css";
+			@import "./media/css/jquery.switchButton.css";
+			@import "./media/css/pretty-json.css"
+			@import "./media/css/prettify.css"
+		</style>
+		<script src="./media/js/jquery.min.js"></script>
+		<script src="./media/js/jquery-ui.min.js"></script>
+		<script src=".media/js/ui/jquery.ui.core.js"></script>
+		<script src="./media/js/jquery.themeswitcher.js"></script>
+		<script src="./media/js/jquery.multiselect.js"></script>
+		<script src="./media/js/jquery.dataTables.js"></script>
+		<script src="./media/js/underscore-min.js"></script>
+		<script src="./media/js/TableTools.js"></script>		
+		<script src="./media/js/jquery.multiselect.filter.js"></script>
+		<script src="./media/js/backbone-min.js" ></script>
+		<script src="./media/js/pretty-json-min.js" ></script>		
+		<script src="./media/js/jquery.switchButton.js"></script>
+		<script src="./config.js"></script>
+<style>
+
+element.style {
+    position: absolute;
+}
+
+.topRight
+{
+    position: absolute;
+    right: 0;
+    top: 0;
+}
+
+textarea
+{
+	width: 620px;
+	height: 50px;
+	border: 1px solid #cccccc;
+	padding: 5px;
+	font-family: Tahoma, sans-serif;
+	font-size: 100%;
+	background-image: url(bg.gif);
+	background-position: bottom right;
+	background-repeat: no-repeat;
+} 
+
+div.wrapper {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    width: 300px;
+}
+
+h2
+{
+	background-color:#FDF5CE;
+	color:#1C94C4;
+}
+</style>		
+
+</head>
+<script>
+var esCluster = new ESCluster();
+var oTable;
+var viewEditJSON;
+function ESNode(node)
+{
+	this.name = node.name;
+	this.address = node.transport_address;
+	setNodeAttributes(node.attributes);
+	function setNodeAttributes(attributes)
+	{
+		this.client = attributes.client;
+		this.data = attributes.data;
+	}
+}
+function ESIndexType(name, mapping)
+{
+	this.indexType = name;
+	this.properties = new Array();
+	this.addProperties = addProperties(mapping.properties);
+	function addProperties(props)
+	{
+		var propArr = new Array();
+		$.each( props, function( key, value ) {
+			propArr.push(key);
+		});
+		this.properties = propArr;
+	}
+}
+function ESIndex(name, index)
+{
+  this.indexName = name;
+  this.indexMappings = index.mappings;
+  this.aliases = index.aliases;
+  this.routingTag = index.settings["index.routing.allocation.include.tag"];
+  this.replicas = index.settings["index.number_of_replicas"];
+  this.shards = index.settings["index.number_of_shards"];
+}
+function ESCluster()
+{
+	this.nodes = new Array();
+	this.indices = new Array();
+	this.indiceNames = new Array();
+	this.addNodes = addNodes;
+	this.addIndices = addIndices;
+	function addIndices(newIndice)
+	{
+		this.indices.push(newIndice);
+		this.indiceNames.push(newIndice.indexName);
+	}
+	function addNodes(newNode)
+	{
+		this.nodes.push(newNode);
+	}
+}
+function connectToES()
+{
+	var loc = $("#location").val();
+    $('#index').find('option').remove().end();
+	var jqxhr = $.getJSON( loc + "/_cluster/state", function() {
+		})
+		 .done(function( data ) {
+			 	var count = 0;
+				// set the cluster name
+				$('#cluster').html('<strong>' + data.cluster_name + '</strong>');
+			 	// indices
+				$.each( data.metadata.indices, function( name, index) {
+					esCluster.addIndices(new ESIndex(name, index));
+				});
+			 	// nodes
+				$.each( data.nodes, function( name, node  ) {
+					esCluster.addNodes(new ESNode(node));
+				});
+			 	$.each(esCluster.indices, function (key, value)
+			 	{
+					$('#index').append("<option  value='"+value.indexName+"'>"+value.indexName+"</option>");
+			 	});
+				$('#index').multiselect("refresh");
+				$('#connect').addClass("ui-state-disabled").attr("disabled", true);
+		  })
+		.fail(function() { console.log( "error" ); })
+		.always(function() { console.log( "complete" ); });
+}
+function loadTypesForIndex(indxName)
+{
+	$('#indexTypes').find('option').remove().end();
+	$.each(esCluster.indices, function (key, value)
+	{
+		if (value.indexName == indxName || (value.aliases.indexOf(indxName) > -1))
+		{
+			$.each(value.indexMappings, function (key, mapping)
+			{
+				$('#indexTypes').append("<option  value='"+key+"'>"+key+"</option>");
+			});
+		}
+	});
+	$('#indexTypes').multiselect("refresh");
+}
+
+function populateSearchFields(colData)
+{
+	$('#indexFields').find('option').remove().end();
+	$.each(colData.cols, function (key, mapping)
+	{
+		if (mapping.sTitle)
+		{
+			$('#indexFields').append("<option  value='"+mapping.sTitle+"'>"+mapping.sTitle+"</option>");
+		}
+	});
+	$('#indexFields').multiselect("refresh");
+	$("#indexFields").multiselect("checkAll");
+}
+
+function populateSortFields(colData)
+{
+	$('#sortFields').find('option').remove().end();
+	$.each(colData.cols, function (key, mapping)
+	{
+		if (mapping.sTitle)
+		{
+			$('#sortFields').append("<option  value='"+mapping.sTitle+"'>"+mapping.sTitle+"</option>");
+		}
+	});
+	$('#sortFields').multiselect("refresh");
+}
+
+function adjustSearchFieldsForTable(colData)
+{
+	var searchFields;
+	var fieldsForTable = [];
+	
+	$.each($("#indexFields").val(), function (key, row)
+	{
+		if (searchFields)
+		{
+			searchFields = searchFields + "," + row;
+		}
+		else
+		{
+			searchFields = row;
+		}
+		$.each(colData.cols, function (key, mapping)
+		{
+			if (row === mapping.sTitle)
+			{
+				fieldsForTable.push(mapping);
+			}
+		});
+	});
+
+	var retObj = new Object();
+	retObj.searchFields = searchFields;
+	retObj.fieldsForTable = fieldsForTable;
+	return retObj;
+}
+
+
+
+function getQueryResultsColumns()
+{
+	var indxType = $("#indexTypes").val();
+	var indxName = $("#index").val();
+	// reset the header 
+	var columns = [];
+	var autoCompleteSource = [];
+	// add invisible column for the _id
+	columns.push({ "bVisible": false, "mData" : "_id"});
+	$.each(esCluster.indices, function (key, value)
+	{
+		if (value.indexName == indxName)
+		{
+			$.each(value.indexMappings, function (key, mapping)
+			{
+				if (key == indxType)
+				{
+					$.each(mapping.properties, function (propName, map)
+					{
+						columns.push({ mData: '_source.' + propName , sTitle : propName});
+						autoCompleteSource.push(propName +':');
+					});
+
+				}	
+			});
+		}
+	});
+	
+	var retData = new Object();
+	retData.cols = columns;
+	retData.autoCompleteSrc = autoCompleteSource;
+	return retData;
+}
+
+function getResultsData()
+{
+	var data = [];
+	var typeName = $("#indexTypes").val();
+	var indexName = $("#index").val();
+	var loc = $("#location").val();
+	var jqxhr = $.getJSON( loc + "/" + indexName + "/" + typeName + "/_search", function() {
+		})
+		 .done(function( results ) {
+			data = formatResultsData(results);
+			//console.log( data );
+		  })
+		.fail(function() { console.log( "error" ); })
+		.always(function() { console.log( "complete" ); });
+	return data;	  
+}
+
+
+function formatResultsData(results)
+{
+	// reset the results body
+	var data = [];
+	$.each(results.hits.hits, function (key, value)
+	{
+		var row = [];
+		data.push(value);
+	});
+	return data;
+}
+
+function fnGetSelected( )
+{
+    return oTable.$('tr.row_selected');
+}
+
+function confirmDeleteByQuery()
+{
+	var queryText =  $("#query").val();
+	if (!oTable)
+	{
+		$("#deleteByQuery").text("Please search on index first" );
+		$( "#button-ok" ).addClass("ui-state-disabled").attr("disabled", true);
+		$('#deleteByQuery').dialog("open");		
+		return;
+	}
+		$("#deleteByQuery").dialog('option', 'title', 'Please confirm if you want to DELETE!');
+		$("#deleteByQuery").dialog( "option", "height", 300 );
+		$("#deleteByQuery").dialog( "option", "width", 500 );
+		$("#deleteByQuery").text("Are you sure you want to delete all rows returned by query [" + queryText + "]"  ).removeClass("ui-state-disabled");
+		$( "#button-ok" ).removeClass("ui-state-disabled").attr("disabled", false);
+		$('#deleteByQuery').dialog("open");
+}
+
+function confirmDelete()
+{
+	
+	if (!oTable)
+	{
+		$("#dialog").text("Please search on index first" );
+		$( "#button-ok" ).addClass("ui-state-disabled").attr("disabled", true);
+		$('#dialog').dialog("open");		
+		return;
+	}
+	var rowsToDelete = fnGetSelected();
+	var idToDelete;
+	$.each(rowsToDelete, function (key, row)
+	{
+		if (idToDelete)
+		{
+			idToDelete = idToDelete + "  " + row.id
+		}
+		else
+		{
+			idToDelete = row.id
+		}
+	});
+	if (idToDelete)
+	{
+		$("#dialog").dialog('option', 'title', 'Please confirm!');
+		$("#dialog").text("Are you sure you want to delete rows with id: [" + idToDelete + "]" ).removeClass("ui-state-disabled");
+		$( "#button-ok" ).removeClass("ui-state-disabled").attr("disabled", false);
+		$('#dialog').dialog("open");
+	}
+	else
+	{
+		$("#dialog").dialog('option', 'title', 'Please confirm!');
+		$("#dialog").text("Please select atleast one row to delete" ).removeClass("ui-state-disabled");
+		$( "#button-ok" ).attr("disabled", true).addClass("ui-state-disabled");
+		$('#dialog').dialog("open");	
+	}	
+}
+
+
+function deleteRows()
+{
+	var typeName = $("#indexTypes").val();
+	var indexName = $("#index").val();
+	var loc = $("#location").val();
+
+	var rowsToDelete = fnGetSelected();
+	$.each(rowsToDelete, function (key, row)
+	{
+		var rowID = encodeURIComponent(row.id);
+		$.ajax({
+		   url: loc + "/" + indexName + "/" + typeName + "/" + rowID,
+		   type: "DELETE",
+		   data: {"refresh": true},
+		   beforeSend: function ( xhr ) {
+		  }
+		}).done(function ( data ) {
+			 //console.log("Sample of data:", data);
+			 oTable.fnDeleteRow( row );
+		}).error(function ( jqXHR, textStatus, errorThrown ) {
+				$("#dialog").dialog('option', 'title', 'Error Deleting!');
+				$("#dialog").text("Error deleting the row: [" + errorThrown + "]" ).removeClass("ui-state-disabled");
+				$( "#button-ok" ).addClass("ui-state-disabled").attr("disabled", true);
+				$('#dialog').dialog("open");
+		});
+	});
+}
+
+function validateQueryAndDeleteRowsByQuery()
+{
+	var typeName = $("#indexTypes").val();
+	var indexName = $("#index").val();
+	var loc = $("#location").val();	
+	var queryText =  $("#query").val();
+	$.ajax({
+	   url: loc + indexName + "/" + typeName + "/_validate/query",
+	   type: "GET",
+	   data: {"q": queryText, "explain": true, "pretty": true}	
+	}).done(function ( validateResponse ) {
+		if (validateResponse.valid)
+		{
+			// delete rows now
+			deleteRowsByQuery();
+		}
+		else
+		{
+			$("#dialog").dialog('option', 'title', 'Invalid query');
+			$("#dialog").text(validateResponse.explanations[0].error );
+			$( "#button-ok" ).attr("disabled", true).addClass("ui-state-disabled");
+			$('#dialog').dialog("open");
+			return;			
+		}
+	});
+}
+
+
+function deleteRowsByQuery()
+{
+	var typeName = $("#indexTypes").val();
+	var indexName = $("#index").val();
+	var loc = $("#location").val();
+	var queryTextEncoded =  encodeURIComponent($("#query").val());
+	var queryText =  $("#query").val();
+		$.ajax({
+		   url: loc + indexName + "/" + typeName + "/_query?q=" + queryTextEncoded,
+		   type: "DELETE",
+		   beforeSend: function ( xhr ) {
+		  }
+		}).done(function ( data ) {
+			$('#example').empty();
+		}).error(function ( jqXHR, textStatus, errorThrown ) {
+				$("#dialog").dialog('option', 'title', 'Error Deleting!');
+				$("#dialog").text("Error deleting the row: [" + errorThrown + "]" ).removeClass("ui-state-disabled");
+				$( "#button-ok" ).addClass("ui-state-disabled").attr("disabled", true);
+				$('#dialog').dialog("open");
+		});
+
+}
+
+function validateQueryAndSearch()
+{
+	var typeName = $("#indexTypes").val();
+	var indexName = $("#index").val();
+	var loc = $("#location").val();
+	var queryText = $("#query").val();
+	var fields = $("#indexFields").val();
+
+	if (!indexName)
+	{
+		$("#dialog").text("Please select 'Index and Type' to search on" );
+		$( "#button-ok" ).attr("disabled", true).addClass("ui-state-disabled");
+		$('#dialog').dialog("open");
+		return;
+	}	
+	if (!typeName)
+	{
+		$("#dialog").text("Please select 'Index Type' to search" );
+		$( "#button-ok" ).attr("disabled", true).addClass("ui-state-disabled");
+		$('#dialog').dialog("open");
+		return;
+	}
+	if (!fields)
+	{
+		$("#dialog").text("Please select atleast one index field to return from the search" );
+		$( "#button-ok" ).attr("disabled", true).addClass("ui-state-disabled");
+		$('#dialog').dialog("open");
+		return;
+	}
+	
+	$.ajax({
+	   url: loc + "/" + indexName + "/" + typeName + "/_validate/query",
+	   type: "GET",
+	   data: {"q": queryText, "explain": true, "pretty": true}	
+	}).done(function ( validateResponse ) {
+		if (validateResponse.valid)
+		{
+			// perform the search now
+			searchIndex();
+		}
+		else
+		{
+			$("#dialog").dialog('option', 'title', 'Invalid query');
+			$("#dialog").text(validateResponse.explanations[0].error );
+			$( "#button-ok" ).attr("disabled", true).addClass("ui-state-disabled");
+			$('#dialog').dialog("open");
+			return;			
+		}
+	});	
+}
+
+function split( val ) {
+  return val.split( /,\s*/ );
+}
+function extractLast( term ) {
+  return split( term ).pop();
+}
+
+function setAutoCompleteForQuery()
+{
+	var colData = getQueryResultsColumns();
+	var formattedData;
+	$( "#query" ).autocomplete({
+      source: colData.autoCompleteSrc
+    });
+	return colData;
+}
+
+
+function searchIndex()
+{
+	var typeName = $("#indexTypes").val();
+	var indexName = $("#index").val();
+	var loc = $("#location").val();
+	var fields = $("#indexFields").val();
+	var sortField = $("#sortFields").val();
+	
+	if (sortField)
+	{
+		if($('#sortOrder').is(':checked')) {
+			sortField = sortField + ":asc"
+		} else {
+			sortField = sortField + ":desc"
+		}
+	}
+	else
+	{
+		sortField = "_score:desc";
+	}
+	
+	var colData = getQueryResultsColumns();
+	var formattedData;
+	
+	if (oTable)
+	{
+		oTable.fnDestroy();
+		$('#example').empty();
+	}
+	var queryText =  $("#query").val();
+	
+	var isLowerCaseExpandTerms = false;
+	if($('#lowerCaseExpandedTerms').is(':checked'))
+	{
+		isLowerCaseExpandTerms = true;
+	}
+	
+	var searchColObj = adjustSearchFieldsForTable(getQueryResultsColumns());
+	
+	$.ajax({
+	   url: loc + "/" + indexName + "/" + typeName + "/_search",
+	   type: "GET",
+	   data: {"q": queryText, "sort": sortField, "from": 0, "size": 100, "lowercase_expanded_terms" : isLowerCaseExpandTerms}	
+	}).done(function ( results ) {
+			formattedData = formatResultsData(results);
+			$("#totalResults").html('<strong> Total results found: [' + results.hits.total + ']</strong>');
+			oTable = $('#example').dataTable( {
+				"iDisplayLength": 20,
+			    "bRetrieve": true,
+				"bDestroy": true,
+				"bProcessing": false,
+				"aaData": formattedData,
+				"sScrollY": 300,
+				"sScrollX": "100%",
+				"aoColumns": searchColObj.fieldsForTable,
+				"bJQueryUI": true,
+				  /* Disable initial sort */
+				"aaSorting": [],
+				"fnInitComplete": function(oSettings, json) {
+
+					},
+				"fnDrawCallback": function( oSettings ) {
+						/* Add/remove class to a row when clicked on */
+						$('#example tr').click( function() {
+							$(this).toggleClass('row_selected');
+						});
+						/* bind double click function */
+						$('#example tr').dblclick(function() {
+							showJson(this);
+						});
+						$('.ForeignKey').click( function(e) {
+							showParentJson(this.innerHTML);
+							e.stopPropagation();
+						});
+					},
+				"fnRowCallback": function( nRow, aData, iDisplayIndex, iDisplayIndexFull) {
+					$(nRow).attr("id",aData["_id"]);
+					var count = 0;
+					$.each( aData._source, function( key, value ) {
+						var $cell=$('td:eq(' + count + ')', nRow);
+						$cell.html(ellipsis($cell.text(),150));
+						count = count + 1;
+					});
+					return nRow;	
+					},
+				"fnCreatedRow": function( nRow, aData, iDataIndex ) {
+						//$(nRow).attr("class", "ui-state-highlight ui-corner-all");
+					}					
+			} );
+		  }).error(function ( jqXHR, textStatus, errorThrown ) {
+				$("#dialog").dialog('option', 'title', 'Error while searching!');
+				$("#dialog").text("Error searching: [" + errorThrown + "] \nCaused by:\n" + jqXHR.responseText ).removeClass("ui-state-disabled");
+				$( "#button-ok" ).addClass("ui-state-disabled").attr("disabled", true);
+				$('#dialog').dialog('option','width',700);
+				$('#dialog').dialog('option','height',400);				
+				$('#dialog').dialog("open");
+		});
+}
+
+function ellipsis(text, n) {
+	// check for Date.
+	if(text.length ==13 && (!isNaN(parseFloat(text)) && isFinite(text)) )
+	{	
+		var d =  new Date(parseInt(text));
+		return d.toLocaleString();
+	}
+
+
+	var retText = text;
+	if(text.length > n)
+	{
+		retText = text.substring(0,n)+"...";
+	}
+    if (retText.indexOf("#") > 0)  
+    {  
+		uuidArr = retText.split("#");
+		if (uuidArr.length == 3 && (_.indexOf(esCluster.indiceNames, uuidArr[0]) > 0)) 
+		{
+			// its a UUID, show as link
+			return "<a class=\"ForeignKey\"  href=\"#\" \">" + retText + "</a>";
+		}
+	}
+    return retText;
+}
+
+function showParentJson(uuid)
+{
+	var loc = $("#location").val();
+	uuidArr = uuid.split("#");
+	var typeName = uuidArr[1];
+	var indexName = uuidArr[0];
+	
+	var ID = encodeURIComponent(uuidArr[2]);
+	
+	$.ajax({
+	   url: loc + "/" + indexName + "/" + typeName + "/_search/?q=_id:\"" + ID + "\"",
+	   type: "GET"	
+	}).done(function ( data ) {
+		$('#dialog').html(prettifyJson(data.hits.hits[0]._source));
+		$('#dialog').dialog('option','width',700);
+		$('#dialog').dialog('option','height',400);
+		$('#dialog').dialog("open");
+	});
+}
+
+
+function showJson(row)
+{
+	var typeName = $("#indexTypes").val();
+	var indexName = $("#index").val();
+	var loc = $("#location").val();
+	
+	var rowID = encodeURIComponent(row.id);
+	
+	$.ajax({
+	   url: loc + "/" + indexName + "/" + typeName + "/_search/?q=_id:\"" + rowID + "\"",
+	   type: "GET"	
+	}).done(function ( data ) {
+		//set the rowID attribute
+		$('#rowView').attr("rowID", row.id);
+		viewEditJSON = data.hits.hits[0]._source;
+		$('#rowView').html(prettifyJson(viewEditJSON));
+		$('#rowView').dialog('option','width',700);
+		$('#rowView').dialog('option','height',400);
+		$('#rowView').dialog("open");
+	}).error(function ( jqXHR, textStatus, errorThrown ) {
+				$("#dialog").dialog('option', 'title', 'Error searching with ID:[' + rowID + ']');
+				$("#dialog").text("Error searching the row: [" + errorThrown + "]" ).removeClass("ui-state-disabled");
+				$( "#button-ok" ).addClass("ui-state-disabled").attr("disabled", true);
+				$('#dialog').dialog("open");
+		});
+}
+
+function getTypeCssClass(value)
+{
+	var valueType = value;
+	var retCssClsType = 'string' // default
+		if (_.isString(valueType))
+		{
+			retCssClsType = 'string';
+		}
+		else if (_.isArray(valueType))
+		{
+			retCssClsType = 'array';
+		}
+		else if (_.isNumber(valueType))
+		{
+			retCssClsType = 'number';
+		}
+		else if (_.isBoolean(valueType))
+		{
+			retCssClsType = 'boolean';
+		}
+		else if (_.isDate(valueType))
+		{
+			retCssClsType = 'date';
+		}
+		else if (_.isNull(valueType))
+		{
+			retCssClsType = 'null';
+		}
+		else if (_.isObject(valueType))
+		{
+			retCssClsType = 'object';
+		}		
+		return retCssClsType;
+}
+
+function prettifyJson(json)
+{
+    if (typeof json != 'string')
+	{
+         json = JSON.stringify(json, undefined, 2);
+    }
+            var o;
+            try
+			{ 
+				o = JSON.parse(json); 
+			}
+            catch(e)
+			{ 
+                alert('not valid JSON');
+                return;
+			}
+            var node = new PrettyJSON.view.Node({ 
+                el:$('#rowView'),
+                data: o,
+                dateFormat:"DD/MM/YYYY - HH24:MI:SS"
+            });
+			node.expandAll();
+}
+
+// Index with over write
+function updateRow(dialog)
+{
+	var rowID = encodeURIComponent($('#rowView').attr("rowID"));
+
+	// now index the document back
+	var typeName = $("#indexTypes").val();
+	var indexName = $("#index").val();
+	var loc = $("#location").val();
+	var updatedText = $("#editRow").val();
+	
+	$.ajax({
+	   url: loc + "/" + indexName + "/" + typeName + "/" + rowID,
+	   type: "PUT",
+	   data: updatedText,
+	   success: function (response) {
+		$(dialog).dialog("close");
+		$("#dialog").text("Successfully updated the row with id: " + rowID);
+		$( "#button-ok" ).attr("disabled", true).addClass("ui-state-disabled");
+		$('#dialog').dialog("open");
+      },
+      error: function (xhr, ajaxOptions, thrownError) {
+		$(dialog).dialog("close");
+		$("#dialog").text(xhr.responseText);
+		$( "#button-ok" ).attr("disabled", true).addClass("ui-state-disabled");
+		$('#dialog').dialog("open");
+      }
+	});
+}
+
+function showEditableJSON(rowDialog)
+{
+	$("#editRow").val(JSON.stringify(viewEditJSON, undefined, 3));
+	$('#rowUpdate').dialog({ autoOpen: false, show: 'slide',
+	    buttons: [
+        {
+            id: "button-cancel",
+            text: "Cancel",
+            click: function() {
+				$(this).dialog("close");
+            }
+        },
+       {
+            id: "button-update",
+            text: "Update",
+            click: function() {
+				updateRow(this);
+            }
+        }		
+    ]
+	});
+	$("#rowUpdate").dialog('option','width',700);
+	$('#rowUpdate').dialog('option','height',400);
+	$('#rowUpdate').dialog("open");
+}
+
+$(document).ready(function () {
+   
+   $("#sortOrder").switchButton({
+		  on_label: 'Asc',
+		  off_label: 'Desc',
+		  checked: true
+		});
+   
+   $("#lowerCaseExpandedTerms").switchButton({
+		  on_label: 'True',
+		  off_label: 'False',
+		  checked: false
+		});
+  
+   $("#switcher").themeswitcher({
+     imgpath: "media/images/",
+     loadTheme: ESClientConfig.Theme
+     });
+
+    $("body").css("fontSize", "75%");
+	$("button, input:submit, input:button").button();
+	$('#index').change(function() {
+		loadTypesForIndex($(this).val());
+	});
+	$('#indexTypes').change(function() {
+		var coldData = setAutoCompleteForQuery();
+		populateSearchFields(coldData);
+		populateSortFields(coldData);
+	});
+	$("#location").val( ESClientConfig.SERVER_URL );
+	
+	$("#index").multiselect({
+	   noneSelectedText: "Choose Index",
+	   multiple: false,
+	   show: ['slide', 500],
+	   minWidth: 250,
+	   selectedList: 1
+	  }).multiselectfilter();
+	$("#indexTypes").multiselect({
+	   noneSelectedText: "Choose Type",
+	   multiple: false,
+	   show: ['slide', 500],
+	   minWidth: 250,
+	   selectedList: 1
+	  }).multiselectfilter();
+	$("#indexFields").multiselect({
+	   noneSelectedText: "Search Fields",
+	   multiple: true,
+	   show: ['slide', 500],
+	   minWidth: 250
+	  }).multiselectfilter();
+	$("#sortFields").multiselect({
+	   noneSelectedText: "Sort Fields",
+	   multiple: false,
+	   show: ['slide', 500],
+	   minWidth: 250,
+	   selectedList: 1
+	  }).multiselectfilter();	  
+	
+
+   $( "#dialog" ).dialog({ autoOpen: false, show: 'slide', 
+    buttons: [
+        {
+            id: "button-cancel",
+            text: "Cancel",
+            click: function() {
+                $(this).dialog("close");
+            }
+        },
+        {
+            id: "button-ok",
+            text: "Ok",
+            click: function() {
+				$( this ).attr("disabled", true).addClass("ui-state-disabled");
+                deleteRows();
+				$(this).dialog("close");
+            }
+        }
+    ]
+			 
+   });	
+
+   $( "#rowView" ).dialog({ autoOpen: false, show: 'slide', 
+    buttons: [
+        {
+            id: "button-ok",
+            text: "Ok",
+            click: function() {
+				$(this).dialog("close");
+            }
+        },
+       {
+            id: "button-edit",
+            text: "Edit",
+            click: function() {
+				$(this).dialog("close");
+				showEditableJSON(this);
+            }
+        }		
+    ]
+   });
+   
+    $( "#deleteByQuery" ).dialog({ autoOpen: false, 
+	show: {
+				effect: "blind",
+				duration: 1000
+			},
+			hide: {
+				effect: "blind",
+				duration: 1000
+			},	
+    buttons: [
+        {
+            id: "button-cancel",
+            text: "Cancel",
+            click: function() {
+				$(this).dialog("close");
+            }
+        },
+       {
+            id: "button-delete",
+            text: "Delete",
+            click: function() {
+				$(this).dialog("close");
+				validateQueryAndDeleteRowsByQuery();
+            }
+        }		
+    ]
+     }); 
+   
+});
+
+</script>
+
+<body>
+<div id="header">
+<div id="switcher" class="topRight" style="position: absolute;"></div>
+<div class="ui-widget">
+	<div class="ui-state-highlight ui-corner-all" style="margin-top: 5px; width: 620px">
+		<p><span class="ui-icon ui-icon-info" style="float: left; margin-right: .3em;"></span>
+		<strong><div id="cluster">Cluster not connected</div></strong></p>
+	</div>
+</div>
+</div> <!-- /#header -->
+
+<div id="content">
+<table width="70%" border="0">
+		<tr>
+			<td  colspan="2">
+					<div style="margin-top: 5px;">
+						<label for="location"><strong>Location:</strong></label>
+						<input type="text" id="location" class="ui-state-highlight ui-corner-all" style="width: 620px" />	
+					</div>
+			</td>
+			<td  colspan="2" align="right" valign="bottom">	
+					<div>
+						<button id="connect" onclick="connectToES()">Connect</button>
+					</div>					
+			</td>
+		</tr>
+		<tr>
+			<td	colspan="4" align="left">
+					<div>
+						  <select id="index" onChange="" title="Select Index" class="multiselect" multiple="multiple"></select>
+					</div>
+			</td>
+		</tr>
+		<tr>
+			<td colspan="1" align="left">	
+					<div>
+						  <select id="indexTypes" onChange="" title="Select Type" class="multiselect" multiple="multiple"></select>
+					</div>					
+			</td>
+			<td colspan="1" align="left"  width="30%">	
+					<div>
+						  <label for="location" class="ui-state-highlight ui-corner-all"><strong>Lower case expanded terms:</strong></label>
+					</div>					
+			</td>			
+			<td colspan="1" align="center"  width="70%">	
+					<div>
+						  <input type="checkbox" id="lowerCaseExpandedTerms" class="ui-state-highlight ui-corner-all">
+					</div>					
+			</td>			
+			<td  colspan="1" align="right">	
+						<div>
+							<button id="connect" onclick="validateQueryAndSearch()">Search</button>
+						</div>						
+			</td>
+		</tr>
+		<tr>
+			<td colspan="1" align="left">	
+					<div>
+						  <select id="indexFields" onChange="" title="Select Fields" class="multiselect" multiple="multiple"></select>
+					</div>					
+			</td>
+			<td colspan="1" align="left" width="30%">	
+					<div>
+						  <select id="sortFields" onChange="" title="Select Fields" class="multiselect" multiple="multiple"></select>
+					</div>					
+			</td>
+			<td colspan="1" align="center"  width="70%">	
+					<div>
+						  <input type="checkbox" id="sortOrder" class="ui-state-highlight ui-corner-all">
+					</div>					
+			</td>				
+			<td  colspan="1" align="right">	
+						<div>
+							<button id="connect" onclick="confirmDelete()">Delete</button>
+						</div>						
+			</td>
+		</tr>
+		<tr>
+			<td colspan="4">
+					<div>
+						  <label for="query"><strong>Lucene Query:</strong></label>
+					</div>
+			</td>
+		</tr>		
+		<tr>
+			<td colspan="2" align="left">
+					<div>
+						  <textarea name="query" id="query" >*:*</textarea>
+					</div>
+			</td>
+			<td  colspan="2" align="right">	
+					<div>
+						<button id="connect" onclick="confirmDeleteByQuery()">Delete By Query</button>
+					</div>						
+			</td>				
+		</tr>		
+	</table>			
+		</div>
+<div id="dialog" title="Please confirm!" class="textColor">
+	This is the default dialog which is useful for displaying information.
+</div>
+<div id="rowView" title="JSON data"></div>
+<div id="deleteByQuery" title="Confirm DELETE" ></div>
+
+<div id="rowUpdate" title="Edit data" style="display: none; width: 700px; height: 400px;">
+         <div>
+               <textarea cols="70" rows="300" style="width: 650px; height: 275px;" id="editRow"></textarea>
+         </div>
+</div>
+
+
+<div id="totalResults" style:"color:#1C94C4"></div>
+	<div class="widget-content">
+		<table cellpadding="0" cellspacing="0" border="0" class="display" id="example">
+				<thead>
+				</thead>
+				<tbody>
+				</tbody>								
+		</table>
+	</div>						
+
+  </body>
+</html>
