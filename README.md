@@ -19,7 +19,7 @@ Default config. looks like below
 You can change the location of your Elastic Search node and port and you are good to go.
 The value for Theme is just the jQuery theme roller theme name.
 
-The tool uses several other wonderful open source projects like Datatable and Multiselect etc.
+The tool is built using several other wonderful open source projects like Datatable and Multiselect etc.
 
 I really hope the tool is very intutive to use, if not, below steps should get you started.
 
@@ -31,11 +31,11 @@ After configuration follow below steps
 4) Enter the Lucene query (Not DSL) you want to use for searching.
 4) Hit search to see the results. 
 
-###Sorting:
+###Sorting documents:
 
 1) Select the field you want to sort and click search
 
-###Deleting records:
+###Deleting documents:
 
 1) click on the row(s) you want to delete and hit delete button and confirm your selection to delete rows.
 
@@ -43,7 +43,7 @@ After configuration follow below steps
 
 You can delete multiple rows by query using the "Delete By Query" button. The query entered in the search box would be used for deleting the rows.
 
-###Edit:
+###Editing documents:
 
 1) Double click the row you want to edit. You should see the raw json in the window. Click the edit
    button to edit the document.
