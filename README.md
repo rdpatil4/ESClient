@@ -50,7 +50,7 @@ You can delete multiple rows by query using the "Delete By Query" button. The qu
   
 ###Known Issues:
 
-The tool does not use routing and if you have routing keys, pretty much cannot use the tool.
+The tool does not use routing and if you have routing keys, pretty much cannot use this tool.
 
 
 
