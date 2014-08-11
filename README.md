@@ -17,6 +17,8 @@ Default config. looks like below
    *'Theme':'Blitzer'
 }
 ```
+![alt tag] (https://raw.githubusercontent.com/rdpatil4/Elastic-Search-Client/master/media/ESClient.png)
+
 You can change the location of your Elastic Search node and port and you are good to go.
 The value for Theme is just the jQuery theme roller theme name.
 
