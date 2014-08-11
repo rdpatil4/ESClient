@@ -11,11 +11,12 @@ The resuls are presented in tabular format instead of JSON for easy reading.
 Configuraiton is done in the file **config.js** found in the root folder
 Default config. looks like below
 
-{</br>
+```js
+{
    *'SERVER_URL':'http://localhost:9200',*</br>
    *'Theme':'Blitzer'*</br>
 }
-
+```
 You can change the location of your Elastic Search node and port and you are good to go.
 The value for Theme is just the jQuery theme roller theme name.
 
@@ -52,7 +53,12 @@ You can delete multiple rows by query using the "Delete By Query" button. The qu
 
 The tool does not use routing and if you are using routing keys, you cannot use editing features of this tool.
 
+Author
+----
+Rajesh Patil (rdpatil4@yahoo.com)
 
+License
+----
 
    
 
