@@ -26,8 +26,8 @@ I really hope the tool is very intutive to use, if not, below steps should get y
 After configuration follow below steps
 
 1. Click connect to connect to your elastic search cluster
-2. All the available Index in your cluster would be populated in the Index drop down, select one
-3. Then select the Type and fields you want to search on
+2. Select the Index, Type you want to search on
+3. Select the fields you want in the resultset
 4. Enter the Lucene query (Not DSL) you want to use for searching.
 5. Hit search to see the results. 
 
