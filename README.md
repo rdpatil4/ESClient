@@ -59,7 +59,7 @@ Rajesh Patil (rdpatil4@yahoo.com)
 
 License
 ----
-I dont think too  much about licence just feel free to do anything you want... :-)
+I dont think too much about licence, feel free to do anything you want... :-)
    
 
 
