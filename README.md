@@ -17,12 +17,13 @@ Default config. looks like below
    *'Theme':'Blitzer'
 }
 ```
+You can change the location of your Elastic Search cluster and port and you are good to go.
+
+
 ![alt tag] (https://raw.githubusercontent.com/rdpatil4/Elastic-Search-Client/master/media/ESClient.png)
 
-You can change the location of your Elastic Search node and port and you are good to go.
-The value for Theme is just the jQuery theme roller theme name.
 
-The tool is built using several other wonderful open source projects like Datatable and Multiselect etc.
+The tool is built using(included) other open source projects like Datatable and Multiselect etc.
 
 I really hope the tool is very intutive to use, if not, below steps should get you started.
 
@@ -32,7 +33,7 @@ After configuration follow below steps
 2. Select the Index, Type you want to search on
 3. Select the fields you want in the resultset
 4. Enter the Lucene query (Not DSL) you want to use for searching.
-5. Hit search to see the results. 
+5. Hit search to see the results displayed in tabular format. 
 
 ###Sorting documents:
 
@@ -40,7 +41,7 @@ After configuration follow below steps
 
 ###Deleting documents:
 
-- click on the row(s) you want to delete and hit delete button and confirm your selection to delete rows.
+- Single click on the row(s) you want to delete and hit delete button and confirm your selection to delete rows.
 
 ###Delete by Query:
 
