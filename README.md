@@ -13,8 +13,8 @@ Default config. looks like below
 
 ```js
 {
-   *'SERVER_URL':'http://localhost:9200',*</br>
-   *'Theme':'Blitzer'*</br>
+   *'SERVER_URL':'http://localhost:9200',
+   *'Theme':'Blitzer'
 }
 ```
 You can change the location of your Elastic Search node and port and you are good to go.
