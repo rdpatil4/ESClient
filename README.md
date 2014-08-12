@@ -2,8 +2,6 @@ Elastic Search query client
 =========
 
 Elastic search client tool for easy search, edit and delete Index documents.
-
-This tool works with Lucene queries and not Query DSL.
 The resuls are presented in tabular format instead of JSON for easy reading.
 
 ###Configuration:
@@ -17,7 +15,7 @@ Default config. looks like below
    *'Theme':'Blitzer'
 }
 ```
-You can change the location of your Elastic Search cluster and port and you are good to go.
+Just change the location of your Elastic Search cluster and port and you are good to go.
 
 
 ![alt tag] (https://raw.githubusercontent.com/rdpatil4/Elastic-Search-Client/master/media/ESClient.png)
@@ -32,7 +30,7 @@ After configuration follow below steps
 1. Click connect to connect to your elastic search cluster
 2. Select the Index, Type you want to search on
 3. Select the fields you want in the resultset
-4. Enter the Lucene query (Not DSL) you want to use for searching.
+4. Enter the Lucene query you want to use for searching.
 5. Hit search to see the results displayed in tabular format. 
 
 ###Sorting documents:
