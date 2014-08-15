@@ -2,7 +2,7 @@ Elastic Search query client
 =========
 
 Elastic search client tool for easy search, edit and delete Index documents.
-The resuls are presented in tabular format instead of JSON for easy reading.
+The search results are presented in tabular format instead of JSON for easy reading.
 
 ###Configuration:
 
