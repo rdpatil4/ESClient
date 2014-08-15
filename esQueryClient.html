@@ -386,7 +386,7 @@ function validateQueryAndDeleteRowsByQuery()
 	var loc = $("#location").val();	
 	var queryText =  $("#query").val();
 	$.ajax({
-	   url: loc + indexName + "/" + typeName + "/_validate/query",
+	   url: loc + "/" + indexName + "/" + typeName + "/_validate/query",
 	   type: "GET",
 	   data: {"q": queryText, "explain": true, "pretty": true}	
 	}).done(function ( validateResponse ) {
@@ -415,7 +415,7 @@ function deleteRowsByQuery()
 	var queryTextEncoded =  encodeURIComponent($("#query").val());
 	var queryText =  $("#query").val();
 		$.ajax({
-		   url: loc + indexName + "/" + typeName + "/_query?q=" + queryTextEncoded,
+		   url: loc + "/" + indexName + "/" + typeName + "/_query?q=" + queryTextEncoded,
 		   type: "DELETE",
 		   beforeSend: function ( xhr ) {
 		  }
