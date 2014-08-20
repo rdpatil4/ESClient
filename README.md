@@ -30,7 +30,7 @@ After configuration is done follow below steps:
 2. Select the Index, Type you want to search on
 3. Select the fields you want to be displayed in the result table.
    By default all the fields would be displayed in the result table. So if you have lot of
-   fields for your selected type, then you may want to select only few fields of your interest.
+   fields for your selected type, then you may want to select only fields of your interest.
    Double click on the row in the table, shows the whole json anyways. 
 4. Enter the Lucene query you want to use for searching.
 5. Hit search to see the results displayed in tabular format. 
