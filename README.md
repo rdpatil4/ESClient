@@ -44,12 +44,13 @@ After configuration follow below steps
 
 ###Deleting documents:
 
-- Single click on the row(s) you want to delete and hit delete button and confirm your selection to delete rows.
+- Single click on the row(s) you want to delete and hit delete button. You would be asked to confirm your selection to delete rows.
 ![alt tag] (https://raw.githubusercontent.com/rdpatil4/Elastic-Search-Client/master/media/delete.png)
 
 ###Delete by Query:
 
 You can delete multiple rows by query using the "Delete By Query" button. The query entered in the search box would be used for deleting the rows.
+You would be asked to confirm your selection before deleting the rows.
 
 ###Editing documents:
 
