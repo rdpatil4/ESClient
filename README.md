@@ -12,7 +12,7 @@ Default config. looks like below
 ```js
 {
    'SERVER_URL':'http://localhost:9200',
-   'Theme':'Blitzer'
+   'Theme':'Cupertino'
 }
 ```
 Just change the location of your Elastic Search cluster and port and you are good to go.
