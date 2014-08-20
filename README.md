@@ -36,6 +36,8 @@ After configuration follow below steps
 4. Enter the Lucene query you want to use for searching.
 5. Hit search to see the results displayed in tabular format. 
 
+![alt tag] (https://raw.githubusercontent.com/rdpatil4/Elastic-Search-Client/master/media/searchresults.png)
+
 ###Sorting documents:
 
 - Select the field you want to sort and click search. Default sorting is on _score.
@@ -43,6 +45,7 @@ After configuration follow below steps
 ###Deleting documents:
 
 - Single click on the row(s) you want to delete and hit delete button and confirm your selection to delete rows.
+![alt tag] (https://raw.githubusercontent.com/rdpatil4/Elastic-Search-Client/master/media/delete.png)
 
 ###Delete by Query:
 
@@ -52,6 +55,7 @@ You can delete multiple rows by query using the "Delete By Query" button. The qu
 
 - Double click the row you want to edit. You should see the raw json in the window. Click the edit
   button to edit the document.
+![alt tag] (https://raw.githubusercontent.com/rdpatil4/Elastic-Search-Client/master/media/edit.png)  
   
 ###Known Limitation:
 
