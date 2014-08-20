@@ -29,13 +29,16 @@ After configuration follow below steps
 
 1. Click connect to connect to your elastic search cluster
 2. Select the Index, Type you want to search on
-3. Select the fields you want in the resultset
+3. Select the fields you want in the resultset.
+   By default all the fields would be displayed in the result table. So if you have lot of
+   fields for your selected type, then you should select only the fields you want in the results table.
+   Double click on the row in the table, shows the entire json anyways. 
 4. Enter the Lucene query you want to use for searching.
 5. Hit search to see the results displayed in tabular format. 
 
 ###Sorting documents:
 
-- Select the field you want to sort and click search
+- Select the field you want to sort and click search. Default sorting is on _score.
 
 ###Deleting documents:
 
