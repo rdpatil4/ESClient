@@ -15,7 +15,7 @@ Default config. looks like below
    'Theme':'Cupertino'
 }
 ```
-Just change the location of your Elastic Search cluster and port and you are good to go.
+Just change the location of your Elastic Search cluster, port and you are good to go.
 
 
 ![alt tag] (https://raw.githubusercontent.com/rdpatil4/Elastic-Search-Client/master/media/ESClient.png)
@@ -60,7 +60,7 @@ You would be asked to confirm your selection before deleting the rows.
   
 ###Known Limitation:
 
-The tool does not use routing and if you are using routing keys, you cannot use editing features of this tool.
+The tool does not support use of routing keys.
 
 Author
 ----
