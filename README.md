@@ -48,7 +48,7 @@ After configuration is done follow below steps:
 2. Delete by Query
 
 Care is taken for not allowing any accidental deletes. You would be asked to confirm, before deleting any 
-data. Also care is taken to not accidentally drop the whole mapping.
+data. Also care is taken to not accidentally drop the whole Index with mappings.
 
 ####Delete by ID:
 
