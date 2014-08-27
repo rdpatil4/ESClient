@@ -31,7 +31,7 @@ After configuration is done follow below steps:
 3. Select the fields you want to be displayed in the result table.
    By default all the fields would be displayed in the result table. So if you have lot of
    fields for your selected type, then you may want to select only fields of your interest.
-   Double click on the row in the table, shows the whole json anyways. 
+   Irrespective, double click on the row in the table, shows the whole json anyways. 
 4. Enter the Lucene query you want to use for searching.
 5. Hit search to see the results displayed in tabular format. 
 
@@ -42,7 +42,7 @@ After configuration is done follow below steps:
 - Select the field you want to sort and click search. Default sorting is on _score.
 
 ###Deleting documents:
-- 2 ways to delete data:
+- Two ways to delete data:
 
 1. Delete by ID
 2. Delete by Query
@@ -50,14 +50,14 @@ After configuration is done follow below steps:
 Care is taken for not allowing any accidental deletes. You would be asked to confirm, before deleting any 
 data. Also care is taken to not accidentally drop the whole Index with mappings.
 
-####Delete by ID:
+#####Delete by ID:
 
 - Single click on the row(s) you want to delete and hit delete button. No accidental deletes, you would be asked to confirm 
   your selection to delete rows.
   
 ![alt tag] (https://raw.githubusercontent.com/rdpatil4/Elastic-Search-Client/master/media/delete.png)
 
-####Delete by Query:
+#####Delete by Query:
 
 You can delete multiple rows by query using the "Delete By Query" button. The query entered in the search box would be used for deleting the rows.
 Again no accidental deletes, you would be asked to confirm your selection before deleting the rows.
@@ -70,7 +70,9 @@ Again no accidental deletes, you would be asked to confirm your selection before
   
 ###Known Limitation:
 
-The tool does not support use of routing keys.
+- The tool does not support use of routing keys.
+- You can search on only one index at a time.
+- No Index alias use 
 
 Author
 ----
