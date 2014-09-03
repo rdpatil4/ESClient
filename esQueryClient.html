@@ -213,6 +213,7 @@ function adjustSearchFieldsForTable(colData)
 			{
 				fieldsForTable.push(mapping);
 			}
+			
 		});
 	});
 
@@ -222,8 +223,6 @@ function adjustSearchFieldsForTable(colData)
 	return retObj;
 }
 
-
-
 function getQueryResultsColumns()
 {
 	var indxType = $("#indexTypes").val();
@@ -232,7 +231,7 @@ function getQueryResultsColumns()
 	var columns = [];
 	var autoCompleteSource = [];
 	// add invisible column for the _id
-	columns.push({ "bVisible": false, "mData" : "_id"});
+	columns.push({ "bVisible": true, "mData" : "_id", sTitle : "_id" });
 	$.each(esCluster.indices, function (key, value)
 	{
 		if (value.indexName == indxName)
@@ -530,18 +529,12 @@ function searchIndex()
 	}
 	var queryText =  $("#query").val();
 	
-	var isLowerCaseExpandTerms = false;
-	if($('#lowerCaseExpandedTerms').is(':checked'))
-	{
-		isLowerCaseExpandTerms = true;
-	}
-	
 	var searchColObj = adjustSearchFieldsForTable(getQueryResultsColumns());
 	
 	$.ajax({
 	   url: loc + "/" + indexName + "/" + typeName + "/_search",
 	   type: "GET",
-	   data: {"q": queryText, "sort": sortField, "from": 0, "size": 100, "lowercase_expanded_terms" : isLowerCaseExpandTerms}	
+	   data: {"q": queryText, "sort": sortField, "from": 0, "size": 100, "lowercase_expanded_terms" : $('#lowerCaseExpandedTerms').is(':checked')}	
 	}).done(function ( results ) {
 			formattedData = formatResultsData(results);
 			$("#totalResults").html('<strong> Total results found: [' + results.hits.total + ']</strong>');
@@ -798,7 +791,7 @@ $(document).ready(function () {
    $("#lowerCaseExpandedTerms").switchButton({
 		  on_label: 'True',
 		  off_label: 'False',
-		  checked: false
+		  checked: ESClientConfig.EXPAND_LOWERCASE_TERMS
 		});
   
    $("#switcher").themeswitcher({
