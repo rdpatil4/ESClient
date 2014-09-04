@@ -10,7 +10,6 @@
 			@import "./media/css/jquery.multiselect.filter.css";
 			@import "./media/css/jquery.switchButton.css";
 			@import "./media/css/pretty-json.css"
-			@import "./media/css/prettify.css"
 		</style>
 		<script src="./media/js/jquery.min.js"></script>
 		<script src="./media/js/jquery-ui.min.js"></script>
@@ -121,6 +120,28 @@ function ESCluster()
 		this.nodes.push(newNode);
 	}
 }
+
+function getBaseUrl()
+{
+	var typeName = $("#indexTypes").val();
+	var indexName = $("#index").val();
+	var loc = $("#location").val();
+	var url = loc + "/" + indexName + "/" + typeName + "/";
+	return url;
+}
+
+function getRoutingKeyUrl()
+{
+	var routing = $("#routingKey").val();
+	if (routing)
+	{
+		var routingUrl = "?routing=" + encodeURIComponent(routing);
+		return routingUrl;
+	}
+	return "";
+}
+
+
 function connectToES()
 {
 	var loc = $("#location").val();
@@ -260,10 +281,7 @@ function getQueryResultsColumns()
 function getResultsData()
 {
 	var data = [];
-	var typeName = $("#indexTypes").val();
-	var indexName = $("#index").val();
-	var loc = $("#location").val();
-	var jqxhr = $.getJSON( loc + "/" + indexName + "/" + typeName + "/_search", function() {
+	var jqxhr = $.getJSON( getBaseUrl() + "_search", function() {
 		})
 		 .done(function( results ) {
 			data = formatResultsData(results);
@@ -312,7 +330,6 @@ function confirmDeleteByQuery()
 
 function confirmDelete()
 {
-	
 	if (!oTable)
 	{
 		$("#dialog").text("Please search on index first" );
@@ -352,16 +369,12 @@ function confirmDelete()
 
 function deleteRows()
 {
-	var typeName = $("#indexTypes").val();
-	var indexName = $("#index").val();
-	var loc = $("#location").val();
-
 	var rowsToDelete = fnGetSelected();
 	$.each(rowsToDelete, function (key, row)
 	{
 		var rowID = encodeURIComponent(row.id);
 		$.ajax({
-		   url: loc + "/" + indexName + "/" + typeName + "/" + rowID,
+		   url: getBaseUrl() + rowID + getRoutingKeyUrl(),
 		   type: "DELETE",
 		   data: {"refresh": true},
 		   beforeSend: function ( xhr ) {
@@ -380,12 +393,9 @@ function deleteRows()
 
 function validateQueryAndDeleteRowsByQuery()
 {
-	var typeName = $("#indexTypes").val();
-	var indexName = $("#index").val();
-	var loc = $("#location").val();	
 	var queryText =  $("#query").val();
 	$.ajax({
-	   url: loc + "/" + indexName + "/" + typeName + "/_validate/query",
+	   url: getBaseUrl() + "_validate/query",
 	   type: "GET",
 	   data: {"q": queryText, "explain": true, "pretty": true}	
 	}).done(function ( validateResponse ) {
@@ -408,13 +418,10 @@ function validateQueryAndDeleteRowsByQuery()
 
 function deleteRowsByQuery()
 {
-	var typeName = $("#indexTypes").val();
-	var indexName = $("#index").val();
-	var loc = $("#location").val();
 	var queryTextEncoded =  encodeURIComponent($("#query").val());
 	var queryText =  $("#query").val();
 		$.ajax({
-		   url: loc + "/" + indexName + "/" + typeName + "/_query?q=" + queryTextEncoded,
+		   url: getBaseUrl() + "_query?q=" + queryTextEncoded,
 		   type: "DELETE",
 		   beforeSend: function ( xhr ) {
 		  }
@@ -460,7 +467,7 @@ function validateQueryAndSearch()
 	}
 	
 	$.ajax({
-	   url: loc + "/" + indexName + "/" + typeName + "/_validate/query",
+	   url: getBaseUrl() + "_validate/query",
 	   type: "GET",
 	   data: {"q": queryText, "explain": true, "pretty": true}	
 	}).done(function ( validateResponse ) {
@@ -497,15 +504,11 @@ function setAutoCompleteForQuery()
 	return colData;
 }
 
-
 function searchIndex()
 {
-	var typeName = $("#indexTypes").val();
-	var indexName = $("#index").val();
-	var loc = $("#location").val();
 	var fields = $("#indexFields").val();
 	var sortField = $("#sortFields").val();
-	
+		
 	if (sortField)
 	{
 		if($('#sortOrder').is(':checked')) {
@@ -518,7 +521,7 @@ function searchIndex()
 	{
 		sortField = "_score:desc";
 	}
-	
+
 	var colData = getQueryResultsColumns();
 	var formattedData;
 	
@@ -528,11 +531,10 @@ function searchIndex()
 		$('#example').empty();
 	}
 	var queryText =  $("#query").val();
-	
 	var searchColObj = adjustSearchFieldsForTable(getQueryResultsColumns());
 	
 	$.ajax({
-	   url: loc + "/" + indexName + "/" + typeName + "/_search",
+	   url: getBaseUrl() + "_search",
 	   type: "GET",
 	   data: {"q": queryText, "sort": sortField, "from": 0, "size": 100, "lowercase_expanded_terms" : $('#lowerCaseExpandedTerms').is(':checked')}	
 	}).done(function ( results ) {
@@ -561,10 +563,6 @@ function searchIndex()
 						/* bind double click function */
 						$('#example tr').dblclick(function() {
 							showJson(this);
-						});
-						$('.ForeignKey').click( function(e) {
-							showParentJson(this.innerHTML);
-							e.stopPropagation();
 						});
 					},
 				"fnRowCallback": function( nRow, aData, iDisplayIndex, iDisplayIndexFull) {
@@ -599,68 +597,37 @@ function ellipsis(text, n) {
 		return d.toLocaleString();
 	}
 
-
 	var retText = text;
 	if(text.length > n)
 	{
 		retText = text.substring(0,n)+"...";
 	}
-    if (retText.indexOf("#") > 0)  
-    {  
-		uuidArr = retText.split("#");
-		if (uuidArr.length == 3 && (_.indexOf(esCluster.indiceNames, uuidArr[0]) > 0)) 
-		{
-			// its a UUID, show as link
-			return "<a class=\"ForeignKey\"  href=\"#\" \">" + retText + "</a>";
-		}
-	}
     return retText;
 }
 
-function showParentJson(uuid)
-{
-	var loc = $("#location").val();
-	uuidArr = uuid.split("#");
-	var typeName = uuidArr[1];
-	var indexName = uuidArr[0];
-	
-	var ID = encodeURIComponent(uuidArr[2]);
-	
-	$.ajax({
-	   url: loc + "/" + indexName + "/" + typeName + "/_search/?q=_id:\"" + ID + "\"",
-	   type: "GET"	
-	}).done(function ( data ) {
-		$('#dialog').html(prettifyJson(data.hits.hits[0]._source));
-		$('#dialog').dialog('option','width',700);
-		$('#dialog').dialog('option','height',400);
-		$('#dialog').dialog("open");
-	});
-}
-
-
 function showJson(row)
 {
-	var typeName = $("#indexTypes").val();
-	var indexName = $("#index").val();
-	var loc = $("#location").val();
-	
 	var rowID = encodeURIComponent(row.id);
 	
 	$.ajax({
-	   url: loc + "/" + indexName + "/" + typeName + "/_search/?q=_id:\"" + rowID + "\"",
+	   //url: getBaseUrl() + "_search/?q=_id:\"" + rowID + "\"",
+	   url: getBaseUrl() + rowID + getRoutingKeyUrl(),
 	   type: "GET"	
 	}).done(function ( data ) {
 		//set the rowID attribute
 		$('#rowView').attr("rowID", row.id);
-		viewEditJSON = data.hits.hits[0]._source;
+		//viewEditJSON = data.hits.hits[0]._source;
+		viewEditJSON = data._source;
 		$('#rowView').html(prettifyJson(viewEditJSON));
 		$('#rowView').dialog('option','width',700);
 		$('#rowView').dialog('option','height',400);
 		$('#rowView').dialog("open");
 	}).error(function ( jqXHR, textStatus, errorThrown ) {
-				$("#dialog").dialog('option', 'title', 'Error searching with ID:[' + rowID + ']');
-				$("#dialog").text("Error searching the row: [" + errorThrown + "]" ).removeClass("ui-state-disabled");
+				$("#dialog").dialog('option', 'title', 'Error fetching the data!' );
+				$("#dialog").html('Error searching the row with ID:[' + row.id + '] <br/> Error thrown: [' + errorThrown + '] <br/>May be routing key is required and is missing or wrong!' ).removeClass("ui-state-disabled");
 				$( "#button-ok" ).addClass("ui-state-disabled").attr("disabled", true);
+				$('#dialog').dialog('option','width',700);
+				$('#dialog').dialog('option','height',300);				
 				$('#dialog').dialog("open");
 		});
 }
@@ -700,28 +667,29 @@ function getTypeCssClass(value)
 		return retCssClsType;
 }
 
+
 function prettifyJson(json)
 {
     if (typeof json != 'string')
 	{
          json = JSON.stringify(json, undefined, 2);
     }
-            var o;
-            try
-			{ 
-				o = JSON.parse(json); 
-			}
-            catch(e)
-			{ 
-                alert('not valid JSON');
-                return;
-			}
-            var node = new PrettyJSON.view.Node({ 
-                el:$('#rowView'),
-                data: o,
-                dateFormat:"DD/MM/YYYY - HH24:MI:SS"
-            });
-			node.expandAll();
+		var jsonObj;
+		try
+		{ 
+			jsonObj = JSON.parse(json); 
+		}
+		catch(e)
+		{ 
+			alert('not valid JSON');
+			return;
+		}
+		var node = new PrettyJSON.view.Node({ 
+			el:$('#rowView'),
+			data: jsonObj,
+			dateFormat:"DD/MM/YYYY - HH24:MI:SS"
+		});
+		//node.expandAll();
 }
 
 // Index with over write
@@ -736,13 +704,15 @@ function updateRow(dialog)
 	var updatedText = $("#editRow").val();
 	
 	$.ajax({
-	   url: loc + "/" + indexName + "/" + typeName + "/" + rowID,
+	   url: getBaseUrl() + rowID + getRoutingKeyUrl(),
 	   type: "PUT",
 	   data: updatedText,
 	   success: function (response) {
 		$(dialog).dialog("close");
-		$("#dialog").text("Successfully updated the row with id: " + rowID);
+		$("#dialog").text("Successfully updated the row with id: " + decodeURIComponent(rowID));
 		$( "#button-ok" ).attr("disabled", true).addClass("ui-state-disabled");
+		$('#dialog').dialog('option','width',700);
+		$('#dialog').dialog('option','height',300);			
 		$('#dialog').dialog("open");
       },
       error: function (xhr, ajaxOptions, thrownError) {
@@ -796,7 +766,7 @@ $(document).ready(function () {
   
    $("#switcher").themeswitcher({
      imgpath: "media/images/",
-     loadTheme: ESClientConfig.Theme
+     loadTheme: ESClientConfig.THEME
      });
 
     $("body").css("fontSize", "75%");
@@ -991,6 +961,20 @@ $(document).ready(function () {
 						</div>						
 			</td>
 		</tr>
+		<tr>
+			<td colspan="4">
+					<div>
+						  <label for="query"><strong>Routing key:</strong></label>
+					</div>
+			</td>
+		</tr>		
+		<tr>
+			<td colspan="4">
+					<div>
+						  <input type="text" id="routingKey" style="width: 375px" />
+					</div>
+			</td>
+		</tr>		
 		<tr>
 			<td colspan="4">
 					<div>

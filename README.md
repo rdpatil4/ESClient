@@ -3,6 +3,8 @@ Elastic Search query client
 
 Elastic search client tool for easy search, edit and delete Index documents.
 The search results are presented in tabular format instead of JSON for easy reading through the results.
+Routing key support is now added to the tool. Enter the routing key value when updating and deleting the records
+that use routing key.
 
 ###Configuration:
 
@@ -71,7 +73,6 @@ Again no accidental deletes, you would be asked to confirm your selection before
   
 ###Known Limitation:
 
-- The tool does not support use of routing keys.
 - You can search on only one index at a time.
 - No Index alias use 
 
