@@ -14,7 +14,7 @@ Default configuration looks like below:
 ```js
 {
    'SERVER_URL':'http://localhost:9200', 
-   'Theme':'Cupertino',
+   'THEME':'Cupertino',
    'EXPAND_LOWERCASE_TERMS':false
 }
 ```
