@@ -1,7 +1,7 @@
-Elastic Search query client
+Elasticsearch query client
 =========
 
-Elastic search client tool for easy search, edit and delete Index documents.
+Elasticsearch client tool for easy search, edit and delete Index documents.
 The search results are presented in tabular format instead of JSON for easy reading through the results.
 Routing key support is now added to the tool. Enter the routing key value when updating and deleting the records
 that use routing key.
