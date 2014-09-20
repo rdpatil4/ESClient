@@ -71,10 +71,11 @@ Again no accidental deletes, you would be asked to confirm your selection before
   button to edit the document.
 ![alt tag] (https://raw.githubusercontent.com/rdpatil4/Elastic-Search-Client/master/media/edit.png)  
   
-###Known Limitation:
+###Known Limitation (coming soon..):
 
 - You can search on only one index at a time.
 - No Index alias use 
+- No DSL support
 
 Author
 ----
