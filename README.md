@@ -25,7 +25,7 @@ var Config = {
    'ENABLE_INDEX_DROP':false
 }
 ```
-Just change the location of your Elasticsearch cluster, port and you are good to go.
+Just change the value Elasticsearch cluster(CLUSTER_URL) and you are good to go.
 
 ![alt tag] (https://raw.githubusercontent.com/rdpatil4/Elastic-Search-Client/master/media/ESClient.png)
 
