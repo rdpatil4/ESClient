@@ -586,6 +586,7 @@ function searchIndex()
 	   { "q": queryText , "sort": sortField, "from": $('#from').val(), "size": $('#size').val() , "lowercase_expanded_terms" : $('#lowerCaseExpandedTerms').is(':checked'), "analyze_wildcard" : $('#analyzeWildcard').is(':checked') , "search_type" : $('#searchType').val()[0] , "default_operator" : $('#defOperator').val()[0] }	
 	   :{ "source": queryText , "sort": sortField, "from": $('#from').val(), "size": $('#size').val() , "lowercase_expanded_terms" : $('#lowerCaseExpandedTerms').is(':checked'), "analyze_wildcard" : $('#analyzeWildcard').is(':checked') , "search_type" : $('#searchType').val()[0] , "default_operator" : $('#defOperator').val()[0] }	
 	}).done(function ( results ) {
+			$('#jsonResults').html(prettifyJson(results.hits, $('#jsonResults'), true));
 			formattedData = formatResultsData(results);
 			$("#totalResults").html('<strong> Total results found: [' + results.hits.total + ']</strong>');
 			oTable = $('#example').dataTable( {
@@ -680,7 +681,7 @@ function showJson(row)
 		$('#rowView').attr("recordIndexName", RecordIndexName);
 		//viewEditJSON = data.hits.hits[0]._source;
 		viewEditJSON = data._source;
-		$('#rowView').html(prettifyJson(viewEditJSON));
+		$('#rowView').html(prettifyJson(viewEditJSON, $('#rowView'), false));
 		$('#rowView').dialog('option','width',700);
 		$('#rowView').dialog('option','height',400);
 		$('#rowView').dialog("open");
@@ -730,11 +731,11 @@ function getTypeCssClass(value)
 }
 
 
-function prettifyJson(json)
+function prettifyJson(json, divId, isExpandAll)
 {
     if (typeof json != 'string')
 	{
-         json = JSON.stringify(json, undefined, 2);
+         json = JSON.stringify(json, undefined, 4);
     }
 		var jsonObj;
 		try
@@ -747,11 +748,14 @@ function prettifyJson(json)
 			return;
 		}
 		var node = new PrettyJSON.view.Node({ 
-			el:$('#rowView'),
+			el:divId,
 			data: jsonObj,
 			dateFormat:"DD/MM/YYYY - HH24:MI:SS"
 		});
-		//node.expandAll();
+		if (isExpandAll)
+		{
+			node.expandAll();
+		}
 }
 
 // Index with over write

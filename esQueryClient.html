@@ -277,8 +277,9 @@ $(document).ready(function () {
 			<td align="left">
 				<div class="ui-widget">
 					<div class="ui-state-highlight ui-corner-all">
-						<p><span class="ui-icon ui-icon-info" style="float: left; margin-right: .3em;"></span>
-						<strong><div id="cluster">Cluster not connected</div></strong></p>
+						<p><span class="ui-icon ui-icon-info" style="float: left; margin-right: .3em;" ></span>
+							<div id="cluster"><strong>Cluster not connected</strong></div>
+						</p>
 					</div>
 				</div>			
 			</td>
@@ -290,6 +291,7 @@ $(document).ready(function () {
   <ul>
     <li><a href="#config-tab">Configuration</a></li>
     <li><a href="#search-tab">Search</a></li>
+	<li><a href="#json-tab">JSON Results</a></li>
   </ul>	
 <div id="search-tab">
 <table width="70%" border="0">
@@ -548,8 +550,10 @@ $(document).ready(function () {
 					</div>					
 			</td>		
 		</tr>		
-
+</table>
 </div>
+<div id="json-tab">
+	<div id="jsonResults">Json results are shown here</div>
 </div>
   </body>
 </html>

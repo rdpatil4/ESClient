@@ -1,7 +1,7 @@
-Elasticsearch query client
+Elastic Search query client
 =========
 
-Elasticsearch client tool for easy search, edit and delete Index documents.
+Elastic search client tool for easy search, edit and delete Index documents.
 The search results are presented in tabular format instead of JSON for easy reading through the results.
 Routing key support is now added to the tool. Enter the routing key value when updating and deleting the records
 that use routing key.
@@ -12,22 +12,18 @@ Configuraiton is done in the file **config.js** found in the root folder.
 Default configuration looks like below:
 
 ```js
-var Config = {
-   'CLUSTER_URL':'http://localhost:9200', 
-   'THEME':'Smoothness',
-   'EXPAND_LOWERCASE_TERMS':true,
-   'ANALYZE_WILDCARD':false,
-   'SEARCH_TYPE':'query_then_fetch',
-   'FROM':0,
-   'SIZE':100,
-   'DEFAULT_OPERATOR':'OR',
-   'USE_LUCENE_QUERY_TYPE':true,
-   'ENABLE_INDEX_DROP':false
+{
+   'SERVER_URL':'http://localhost:9200', 
+   'Theme':'Cupertino',
+   'EXPAND_LOWERCASE_TERMS':false
 }
 ```
-Just change the value Elasticsearch cluster(CLUSTER_URL) and you are good to go.
+Just change the location of your Elasticsearch cluster, port and you are good to go.
 
 ![alt tag] (https://raw.githubusercontent.com/rdpatil4/Elastic-Search-Client/master/media/ESClient.png)
+
+
+The tool is built using(included) other open source projects like Datatable and Multiselect etc.
 
 I really hope the tool is very intutive to use, if not, below steps should get you started.
 
@@ -44,11 +40,9 @@ After configuration is done follow below steps:
 
 ![alt tag] (https://raw.githubusercontent.com/rdpatil4/Elastic-Search-Client/master/media/searchresults.png)
 
-###Editing documents:
+###Sorting documents:
 
-- Double click the row you want to edit. You should see the raw json in the window. Click the edit
-  button to edit the document.
-![alt tag] (https://raw.githubusercontent.com/rdpatil4/Elastic-Search-Client/master/media/edit.png)
+- Select the field you want to sort and click search. Default sorting is on _score.
 
 ###Deleting documents:
 - Two ways to delete data:
@@ -71,13 +65,16 @@ data. Also care is taken to not accidentally drop the whole Index with mappings.
 You can delete multiple rows by query using the "Delete By Query" button. The query entered in the search box would be used for deleting the rows.
 Again no accidental deletes, you would be asked to confirm your selection before deleting the rows.
 
-###Sorting documents:
+###Editing documents:
 
-- Select the field you want to sort and click search. Default sorting is on _score.
-
+- Double click the row you want to edit. You should see the raw json in the window. Click the edit
+  button to edit the document.
+![alt tag] (https://raw.githubusercontent.com/rdpatil4/Elastic-Search-Client/master/media/edit.png)  
+  
 ###Known Limitation:
 
-- No Index alias use supported.
+- You can search on only one index at a time.
+- No Index alias use 
 
 Author
 ----
@@ -85,5 +82,13 @@ Rajesh Patil (rdpatil4@yahoo.com)
 
 License
 ----
-Licensed under the [MIT license][mit].
-[mit]: http://www.opensource.org/licenses/mit-license.php
+I dont think too much about licence, feel free to do anything you want... :-)
+   
+
+
+
+
+
+
+
+
