@@ -29,9 +29,6 @@ Just change the value Elasticsearch cluster(CLUSTER_URL) and you are good to go.
 
 ![alt tag] (https://raw.githubusercontent.com/rdpatil4/Elastic-Search-Client/master/media/ESClient.png)
 
-
-The tool is built using(included) other open source projects like Datatable and Multiselect etc.
-
 I really hope the tool is very intutive to use, if not, below steps should get you started.
 
 After configuration is done follow below steps:
