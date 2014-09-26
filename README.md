@@ -12,10 +12,18 @@ Configuraiton is done in the file **config.js** found in the root folder.
 Default configuration looks like below:
 
 ```js
-{
-   'SERVER_URL':'http://localhost:9200', 
-   'Theme':'Cupertino',
-   'EXPAND_LOWERCASE_TERMS':false
+var Config = {
+   'CLUSTER_URL':'http://localhost:9200', 
+   'THEME':'Smoothness',
+   'EXPAND_LOWERCASE_TERMS':true,
+   'ANALYZE_WILDCARD':false,
+   'SEARCH_TYPE':'query_then_fetch',
+   'FROM':0,
+   'SIZE':100,
+   'DEFAULT_OPERATOR':'OR',
+   'USE_LUCENE_QUERY_TYPE':true,
+   'ENABLE_INDEX_DROP':false,
+   'SHOW_JSON_RESULS':false
 }
 ```
 Just change the location of your Elasticsearch cluster, port and you are good to go.
@@ -40,9 +48,11 @@ After configuration is done follow below steps:
 
 ![alt tag] (https://raw.githubusercontent.com/rdpatil4/Elastic-Search-Client/master/media/searchresults.png)
 
-###Sorting documents:
+###Editing documents:
 
-- Select the field you want to sort and click search. Default sorting is on _score.
+- Double click the row you want to edit. You should see the raw json in the window. Click the edit
+  button to edit the document.
+![alt tag] (https://raw.githubusercontent.com/rdpatil4/Elastic-Search-Client/master/media/edit.png) 
 
 ###Deleting documents:
 - Two ways to delete data:
@@ -65,16 +75,15 @@ data. Also care is taken to not accidentally drop the whole Index with mappings.
 You can delete multiple rows by query using the "Delete By Query" button. The query entered in the search box would be used for deleting the rows.
 Again no accidental deletes, you would be asked to confirm your selection before deleting the rows.
 
-###Editing documents:
 
-- Double click the row you want to edit. You should see the raw json in the window. Click the edit
-  button to edit the document.
-![alt tag] (https://raw.githubusercontent.com/rdpatil4/Elastic-Search-Client/master/media/edit.png)  
-  
+###Sorting documents:
+
+- Select the field you want to sort and click search. Default sorting is on _score.
+
+
 ###Known Limitation:
 
-- You can search on only one index at a time.
-- No Index alias use 
+- No Index alias use supported
 
 Author
 ----
