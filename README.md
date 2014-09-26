@@ -44,9 +44,11 @@ After configuration is done follow below steps:
 
 ![alt tag] (https://raw.githubusercontent.com/rdpatil4/Elastic-Search-Client/master/media/searchresults.png)
 
-###Sorting documents:
+###Editing documents:
 
-- Select the field you want to sort and click search. Default sorting is on _score.
+- Double click the row you want to edit. You should see the raw json in the window. Click the edit
+  button to edit the document.
+![alt tag] (https://raw.githubusercontent.com/rdpatil4/Elastic-Search-Client/master/media/edit.png)
 
 ###Deleting documents:
 - Two ways to delete data:
@@ -69,15 +71,13 @@ data. Also care is taken to not accidentally drop the whole Index with mappings.
 You can delete multiple rows by query using the "Delete By Query" button. The query entered in the search box would be used for deleting the rows.
 Again no accidental deletes, you would be asked to confirm your selection before deleting the rows.
 
-###Editing documents:
+###Sorting documents:
 
-- Double click the row you want to edit. You should see the raw json in the window. Click the edit
-  button to edit the document.
-![alt tag] (https://raw.githubusercontent.com/rdpatil4/Elastic-Search-Client/master/media/edit.png)  
-  
+- Select the field you want to sort and click search. Default sorting is on _score.
+
 ###Known Limitation:
 
-- No Index alias use 
+- No Index alias use supported.
 
 Author
 ----
