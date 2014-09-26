@@ -586,7 +586,9 @@ function searchIndex()
 	   { "q": queryText , "sort": sortField, "from": $('#from').val(), "size": $('#size').val() , "lowercase_expanded_terms" : $('#lowerCaseExpandedTerms').is(':checked'), "analyze_wildcard" : $('#analyzeWildcard').is(':checked') , "search_type" : $('#searchType').val()[0] , "default_operator" : $('#defOperator').val()[0] }	
 	   :{ "source": queryText , "sort": sortField, "from": $('#from').val(), "size": $('#size').val() , "lowercase_expanded_terms" : $('#lowerCaseExpandedTerms').is(':checked'), "analyze_wildcard" : $('#analyzeWildcard').is(':checked') , "search_type" : $('#searchType').val()[0] , "default_operator" : $('#defOperator').val()[0] }	
 	}).done(function ( results ) {
+		if ($('#showJsonResults').is(':checked')){
 			$('#jsonResults').html(prettifyJson(results.hits, $('#jsonResults'), true));
+		}
 			formattedData = formatResultsData(results);
 			$("#totalResults").html('<strong> Total results found: [' + results.hits.total + ']</strong>');
 			oTable = $('#example').dataTable( {

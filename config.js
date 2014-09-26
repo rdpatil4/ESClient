@@ -8,5 +8,6 @@ var Config = {
    'SIZE':100,
    'DEFAULT_OPERATOR':'OR',
    'USE_LUCENE_QUERY_TYPE':true,
-   'ENABLE_INDEX_DROP':false
+   'ENABLE_INDEX_DROP':false,
+   'SHOW_JSON_RESULS':false
 }

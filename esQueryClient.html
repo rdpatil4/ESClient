@@ -88,6 +88,12 @@ $(document).ready(function () {
 		  on_label: 'Lucene',
 		  off_label: 'DSL',
 		  checked: Config.USE_LUCENE_QUERY_TYPE
+		});
+	
+   $("#showJsonResults").switchButton({
+		  on_label: 'True',
+		  off_label: 'False',
+		  checked: Config.SHOW_JSON_RESULS
 		});	
    $("#indexDrop").switchButton({
 		  on_label: 'True',
@@ -547,6 +553,21 @@ $(document).ready(function () {
 			<td colspan="1" align="right"  width="65%">	
 					<div>
 						  <input type="checkbox" id="indexDrop" onchange="showDropIndex()">
+					</div>					
+			</td>		
+		</tr>
+		<tr>
+			<td colspan="2" align="left"  width="30%">	
+					<div>
+						  <label><strong>Show JSON Results:</strong></label>
+					</div>					
+			</td>
+			<td	colspan="1" width="5%" align="left">
+					<div>&nbsp;</div>
+			</td>			
+			<td colspan="1" align="right"  width="65%">	
+					<div>
+						  <input type="checkbox" id="showJsonResults">
 					</div>					
 			</td>		
 		</tr>		
