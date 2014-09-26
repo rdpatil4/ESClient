@@ -2,7 +2,8 @@ Elastic Search query client
 =========
 
 Elastic search client tool for easy search, edit and delete Index documents.
-The search results are presented in tabular format instead of JSON for easy reading through the results.
+The search results are presented in tabular format for easy reading through the results. JSON results view is also available
+if configured.
 Routing key support is now added to the tool. Enter the routing key value when updating and deleting the records
 that use routing key.
 
