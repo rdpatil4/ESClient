@@ -12,10 +12,17 @@ Configuraiton is done in the file **config.js** found in the root folder.
 Default configuration looks like below:
 
 ```js
-{
-   'SERVER_URL':'http://localhost:9200', 
-   'THEME':'Cupertino',
-   'EXPAND_LOWERCASE_TERMS':false
+var Config = {
+   'CLUSTER_URL':'http://localhost:9200', 
+   'THEME':'Smoothness',
+   'EXPAND_LOWERCASE_TERMS':true,
+   'ANALYZE_WILDCARD':false,
+   'SEARCH_TYPE':'query_then_fetch',
+   'FROM':0,
+   'SIZE':100,
+   'DEFAULT_OPERATOR':'OR',
+   'USE_LUCENE_QUERY_TYPE':true,
+   'ENABLE_INDEX_DROP':false
 }
 ```
 Just change the location of your Elasticsearch cluster, port and you are good to go.
