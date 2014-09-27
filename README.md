@@ -95,6 +95,12 @@ Author
 ----
 Rajesh Patil (rdpatil4@yahoo.com)
 
+Special Thanks 
+----
+- @warfares for JSON formatter
+- @DataTables for Datatables
+- @ehynds for Multiselect
+
 License
 ----
 
