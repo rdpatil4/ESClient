@@ -41,7 +41,7 @@ I really hope the tool is very intutive to use, if not, below steps should get y
 
 After configuration is done follow below steps:
 
-1. Click connect to connect to your elastic search cluster
+1. Click connect to connect to your Elasticsearch cluster
 2. Select the Index, Type you want to search on
 3. Select the fields you want to be displayed in the result table.
    By default all the fields would be displayed in the result table. So if you have lot of
