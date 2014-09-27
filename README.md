@@ -1,11 +1,17 @@
 Elastic Search query client
 =========
 
-Elastic search client tool for easy search, edit and delete Index documents.
-The search results are presented in tabular format for easy reading through the results. JSON results view is also available
-if configured.
-Routing key support is now added to the tool. Enter the routing key value when updating and deleting the records
-that use routing key.
+Elasticsearch client tool for easy search, edit and delete Index documents.
+
+##Key features
+- Search results are presented in tabular format for easy reading through the results. 
+- Works with Lucene as well as DSL query syntax, as per configuration.
+- Easy updating of documents.
+- Easy delete of documents with simple button clicks.
+- Protection against accidental dropping index/mappings when trying to delete documents.
+- Easy configuration of advanced Elasticsearch search params in configuration tab.
+- JSON results view available, if configured.
+- Dropping index/mapping supported, if configured.
 
 ###Configuration:
 
@@ -41,15 +47,16 @@ After configuration is done follow below steps:
    By default all the fields would be displayed in the result table. So if you have lot of
    fields for your selected type, then you may want to select only fields of your interest.
    Irrespective, double click on the row in the table, shows the whole json anyways. 
-4. Enter the Lucene query you want to use for searching.
+4. Enter the Lucene/DSL query you want to use for searching.
 5. Hit search to see the results displayed in tabular format. 
 
 ![alt tag] (https://raw.githubusercontent.com/rdpatil4/Elastic-Search-Client/master/media/searchresults.png)
 
 ###Editing documents:
 
-- Double click the row you want to edit. You should see the raw json in the window. Click the edit
-  button to edit the document.
+- Double click the row you want to edit. You should see the raw JSON in the window. Click the edit
+  button to edit the document. If you are using routing while Indexing, then routing key value is 
+  required for updating the documents.    
 ![alt tag] (https://raw.githubusercontent.com/rdpatil4/Elastic-Search-Client/master/media/edit.png) 
 
 ###Deleting documents:
@@ -81,7 +88,7 @@ Again no accidental deletes, you would be asked to confirm your selection before
 
 ###Known Limitation:
 
-- No Index alias use supported
+- No Index alias supported
 
 Author
 ----
