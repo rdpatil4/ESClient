@@ -89,7 +89,9 @@ Rajesh Patil (rdpatil4@yahoo.com)
 
 License
 ----
-I dont think too much about licence, feel free to do anything you want... :-)
+
+Licensed under the [MIT license][mit].
+[mit]: http://www.opensource.org/licenses/mit-license.php
    
 
 
