@@ -89,7 +89,6 @@ Again no accidental deletes, you would be asked to confirm your selection before
 ###Known Limitation:
 
 - No Index alias supported
-- Delete by DSL query does not work!
 
 Author
 ----
