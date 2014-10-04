@@ -443,7 +443,6 @@ function validateQueryAndDeleteRowsByQuery()
 function deleteRowsByLuceneQuery()
 {
 	var queryTextEncoded =  encodeURIComponent($("#query").val());
-	var queryText =  $("#query").val();
 		$.ajax({
 		   url: getBaseUrl() + "_query?q=" + queryTextEncoded,
 		   type: "DELETE"
@@ -461,9 +460,25 @@ function deleteRowsByLuceneQuery()
 function deleteRowsByDSLQuery()
 {
 	var queryText =  $("#query").val();
+	var jsonObj;
+	try
+	{ 
+		jsonObj = JSON.parse(queryText); 
+	}
+	catch(e)
+	{ 
+		$("#dialog").dialog('option', 'title', "Invalid DSL");
+		$("#dialog").text("Invalid JSON format for DSL query" ).removeClass("ui-state-disabled");
+		$( "#button-ok" ).addClass("ui-state-disabled").attr("disabled", true);
+		$('#dialog').dialog('option','width',700);
+		$('#dialog').dialog('option','height',400);
+		$('#dialog').dialog("open");
+		return;
+	}
+
 		$.ajax({
 		   url: getBaseUrl() + "_query",
-		   data: {"source": queryText },
+		   data: JSON.stringify(jsonObj),
 		   type: "DELETE"
 		}).done(function ( data ) {
 			$('#example').empty();
