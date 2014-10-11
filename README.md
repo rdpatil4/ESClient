@@ -4,8 +4,8 @@ Elasticsearch query client
 Elasticsearch client tool for easy search, edit and delete Index documents.
 
 ##Key features
-- Search results are presented in tabular format for easy reading through the results. 
 - Works with Lucene as well as DSL query syntax, as per configuration.
+- Search results are presented in tabular format for easy reading through the results. 
 - Easy updating of documents.
 - Easy delete of documents with simple button clicks.
 - Protection against accidental dropping index/mappings when trying to delete documents.
@@ -36,8 +36,6 @@ var Config = {
 Just point to the location of your Elasticsearch cluster (CLUSTER_URL) and you are good to go.
 
 ![alt tag] (https://raw.githubusercontent.com/rdpatil4/Elastic-Search-Client/master/media/ESClient.png)
-
-I really hope the tool is very intutive to use, if not, below steps should get you started.
 
 After configuration is done follow below steps:
 
