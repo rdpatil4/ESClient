@@ -4,7 +4,7 @@ Elasticsearch query client
 For Elasticsearch 1.4 users:
 You need to enable CORS in elasticsearch.yml by setting below line:
 http.cors.enabled: true or 
-set http.cors.allow-origin value accordingly for this tool to work
+http.cors.allow-origin value accordingly for this tool to work
 ``` 
 Elasticsearch client tool for easy search, edit and delete Index documents.
 
