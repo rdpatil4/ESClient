@@ -1,16 +1,16 @@
 .switch-button-label {
     float: left;
-
     font-size: 10pt;
     cursor: pointer;
 }
 
 .switch-button-label.off {
-    color: #adadad;
+    color: #6E6E6E;
 }
 
 .switch-button-label.on {
-    color: #0088CC;
+    color: #2E2EFE;
+	font-weight: bold;
 }
 
 .switch-button-background {

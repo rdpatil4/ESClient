@@ -25,7 +25,7 @@
 			@import "./media/css/jquery.multiselect.filter.css";
 			@import "./media/css/jquery.switchButton.css";
 			@import "./media/css/pretty-json.css";
-			@import "./media/css/demo_table.css";			
+			@import "./media/css/demo_table.css";
 		</style>		
 <style>
 
@@ -302,11 +302,16 @@ $(document).ready(function () {
 <div id="search-tab">
 <table width="70%" border="0">
 		<tr>
-			<td	colspan="4" align="left">
+			<td	colspan="2" align="left">
 					<div>
 						  <select id="index" onChange="" title="Select Index" class="multiselect" multiple="multiple"></select>
 					</div>
 			</td>
+			<td  colspan="2" align="left">	
+						<div id="dropIndexDiv">
+							<button style="width: 140px; height: 30px;" id="dropIndex" onclick="confirmIndexDelete()">Drop Index/Type</button>
+						</div>						
+			</td>			
 		</tr>
 		<tr>
 			<td colspan="2" align="left">	
@@ -314,33 +319,28 @@ $(document).ready(function () {
 						  <select id="indexTypes" onChange="" title="Select Type" class="multiselect" multiple="multiple"></select>
 					</div>					
 			</td>
-			<td  colspan="2" align="right">	
+			<td  colspan="2" align="left">	
 						<div>
-							<button id="search" onclick="validateQueryAndSearch()">Search</button>
+							<button  style="width: 140px; height: 30px;" id="delete" onclick="confirmDelete()">Delete By Id</button>
 						</div>						
 			</td>
 		</tr>
 		<tr>
-			<td colspan="1" align="left">	
+			<td colspan="1" align="left" >	
 					<div>
 						  <select id="indexFields" onChange="" title="Select Fields" class="multiselect" multiple="multiple"></select>
 					</div>					
 			</td>
-			<td colspan="1" align="left" width="30%">	
+			<td colspan="1" align="left" >	
 					<div>
 						  <select id="sortFields" onChange="" title="Select Fields" class="multiselect" multiple="multiple"></select>
 					</div>					
 			</td>
-			<td colspan="1" align="center"  width="70%">	
+			<td colspan="2" align="right" >	
 					<div>
 						  <input type="checkbox" id="sortOrder" class="ui-state-highlight ui-corner-all">
 					</div>					
 			</td>				
-			<td  colspan="1" align="right">	
-						<div>
-							<button id="delete" onclick="confirmDelete()">Delete</button>
-						</div>						
-			</td>
 		</tr>
 		<tr>
 			<td colspan="4">
@@ -355,9 +355,9 @@ $(document).ready(function () {
 						  <input type="text" id="routingKey" style="width: 375px" />
 					</div>
 			</td>
-			<td  colspan="2" align="right">	
-						<div id="dropIndexDiv">
-							<button id="dropIndex" onclick="confirmIndexDelete()">Drop Index/Type</button>
+			<td  colspan="2" align="left">	
+						<div>
+							<button  style="width: 140px; height: 30px;" id="queryDelete" onclick="confirmDeleteByQuery()">Delete By Query</button>
 						</div>						
 			</td>			
 		</tr>		
@@ -374,9 +374,9 @@ $(document).ready(function () {
 						  <textarea name="query" id="query" >*</textarea>
 					</div>
 			</td>
-			<td  colspan="2" align="right">	
+			<td  colspan="2" align="left">	
 					<div>
-						<button id="queryDelete" onclick="confirmDeleteByQuery()">Delete By Query</button>
+						<button style="width: 140px; height: 30px;" id="search" onclick="validateQueryAndSearch()">Search Index</button>
 					</div>						
 			</td>				
 		</tr>		
