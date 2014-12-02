@@ -31,7 +31,7 @@ var Config = {
    'ANALYZE_WILDCARD':false,
    'SEARCH_TYPE':'query_then_fetch',
    'FROM':0,
-   'SIZE':100,
+   'SIZE':50,
    'DEFAULT_OPERATOR':'OR',
    'USE_LUCENE_QUERY_TYPE':true,
    'ENABLE_INDEX_DROP':false,
