@@ -73,6 +73,17 @@ h2
 $(document).ready(function () {
  
    $("#tabs" ).tabs({ active: 0 });
+	var ul = $( "#tabs" ).find( "ul" );
+	if (Config.SHOW_JSON_RESULS )
+	{
+		$( "<li id='json-tab-li'><a href='#json-tab'>JSON Results</a></li>" ).appendTo( ul );
+	}
+	if (Config.SHOW_MAPPING_INFO )
+	{
+		$( "<li id='mapping-tab-li'><a href='#mapping-tab'>Mapping Info</a></li>" ).appendTo( ul );
+	}	
+	$( "#tabs" ).tabs( "refresh" );
+   
    $("#sortOrder").switchButton({
 		  on_label: 'Asc',
 		  off_label: 'Desc',
@@ -83,6 +94,11 @@ $(document).ready(function () {
 		  on_label: 'True',
 		  off_label: 'False',
 		  checked: Config.EXPAND_LOWERCASE_TERMS
+		});
+	$("#mappingFormatJSON").switchButton({
+		  on_label: 'JSON',
+		  off_label: 'Tabular',
+		  checked: true
 		});
    $("#useLucene").switchButton({
 		  on_label: 'Lucene',
@@ -95,6 +111,11 @@ $(document).ready(function () {
 		  off_label: 'False',
 		  checked: Config.SHOW_JSON_RESULS
 		});	
+   $("#showMappingInfo").switchButton({
+		  on_label: 'True',
+		  off_label: 'False',
+		  checked: Config.SHOW_MAPPING_INFO
+		});		
    $("#indexDrop").switchButton({
 		  on_label: 'True',
 		  off_label: 'False',
@@ -106,7 +127,31 @@ $(document).ready(function () {
 		  off_label: 'False',
 		  checked: Config.ANALYZE_WILDCARD
 		});		
-  
+
+  $("#showJsonResults").change(function() {
+    if(this.checked) 
+	{
+		var ul = $( "#tabs" ).find( "ul" );
+		$( "<li id='json-tab-li'><a href='#json-tab'>JSON Results</a></li>" ).appendTo( ul );
+	}
+	else
+	{
+		$( "#json-tab-li" ).remove();
+	}
+	$( "#tabs" ).tabs( "refresh" );
+	});
+  $("#showMappingInfo").change(function() {
+    if(this.checked) 
+	{
+		var ul = $( "#tabs" ).find( "ul" );
+		$( "<li id='mapping-tab-li'><a href='#mapping-tab'>Mapping Info</a></li>" ).appendTo( ul );
+	}
+	else
+	{
+		$( "#mapping-tab-li" ).remove();
+	}
+	$( "#tabs" ).tabs( "refresh" );
+	});		
    $("#switcher").themeswitcher({
      imgpath: "media/images/",
      loadTheme: Config.THEME
@@ -116,6 +161,9 @@ $(document).ready(function () {
 	$("button, input:submit, input:button").button();
 	$('#index').change(function() {
 		loadTypesForIndex($(this).val());
+	});
+	$('#MappingIndex').change(function() {
+		loadMappingTypesForIndex($(this).val());
 	});
 	$('#indexTypes').change(function() {
 		var coldData = setAutoCompleteForQuery();
@@ -143,8 +191,6 @@ $(document).ready(function () {
 	});
 	$("#defOperator option[value='" + Config.DEFAULT_OPERATOR + "']").attr("selected", 1);
 	$("#defOperator").multiselect("refresh");
-
-	
 	$("#index").multiselect({
 	   noneSelectedText: "Choose Index",
 	   multiple: true,
@@ -152,6 +198,13 @@ $(document).ready(function () {
 	   minWidth: 250,
 	   selectedList: 2
 	  }).multiselectfilter();
+	$("#MappingIndex").multiselect({
+	   noneSelectedText: "Choose Index",
+	   multiple: false,
+	   show: ['slide', 500],
+	   minWidth: 250,
+	   selectedList: 2
+	  }).multiselectfilter();	  
 	$("#indexTypes").multiselect({
 	   noneSelectedText: "Choose Type",
 	   multiple: false,
@@ -159,6 +212,13 @@ $(document).ready(function () {
 	   minWidth: 250,
 	   selectedList: 1
 	  }).multiselectfilter();
+	$("#MappingIndexTypes").multiselect({
+	   noneSelectedText: "Choose Type",
+	   multiple: false,
+	   show: ['slide', 500],
+	   minWidth: 250,
+	   selectedList: 1
+	  }).multiselectfilter();	  
 	$("#indexFields").multiselect({
 	   noneSelectedText: "Search Fields",
 	   multiple: true,
@@ -297,14 +357,13 @@ $(document).ready(function () {
   <ul>
     <li><a href="#config-tab">Configuration</a></li>
     <li><a href="#search-tab">Search</a></li>
-	<li><a href="#json-tab">JSON Results</a></li>
   </ul>	
 <div id="search-tab">
 <table width="70%" border="0">
 		<tr>
 			<td	colspan="2" align="left">
 					<div>
-						  <select id="index" onChange="" title="Select Index" class="multiselect" multiple="multiple"></select>
+						  <select id="index" onChange="" title="Select Index" class="multiselect indexClass" multiple="multiple"></select>
 					</div>
 			</td>
 			<td  colspan="2" align="left">	
@@ -316,7 +375,7 @@ $(document).ready(function () {
 		<tr>
 			<td colspan="2" align="left">	
 					<div>
-						  <select id="indexTypes" onChange="" title="Select Type" class="multiselect" multiple="multiple"></select>
+						  <select id="indexTypes" onChange="" title="Select Type" class="multiselect indexTypesClass" multiple="multiple"></select>
 					</div>					
 			</td>
 			<td  colspan="2" align="left">	
@@ -570,11 +629,72 @@ $(document).ready(function () {
 						  <input type="checkbox" id="showJsonResults">
 					</div>					
 			</td>		
+		</tr>
+		<tr>
+			<td colspan="2" align="left"  width="30%">	
+					<div>
+						  <label><strong>Show Mapping Info:</strong></label>
+					</div>					
+			</td>
+			<td	colspan="1" width="5%" align="left">
+					<div>&nbsp;</div>
+			</td>			
+			<td colspan="1" align="right"  width="65%">	
+					<div>
+						  <input type="checkbox" id="showMappingInfo">
+					</div>					
+			</td>		
 		</tr>		
+		
 </table>
 </div>
-<div id="json-tab">
+<div id="json-tab" style="height:500px; display: none; overflow:scroll">
 	<div id="jsonResults">Json results are shown here</div>
+</div>
+<div id="mapping-tab" style="height:500px; display: none; overflow:scroll" >
+	<div style="width: 25%; float:left; text-align: left;">
+		<table border="0">
+			<tr>
+				<td	colspan="2" align="left">
+						<div>
+							  <select id="MappingIndex" onChange="" title="Select Index" class="multiselect indexClass" multiple="multiple"></select>
+						</div>
+				</td>
+			</tr>
+			<tr>
+				<td colspan="2" align="left">	
+						<div>
+							  <select id="MappingIndexTypes" onChange="" title="Select Type" class="multiselect indexTypesClass" multiple="multiple"></select>
+						</div>					
+				</td>
+			</tr>
+			<tr>
+				<td colspan="1" align="left">	
+						<div>
+							  <button id="showMapping" onclick="showMapping()">Show Mapping</button>
+						</div>					
+				</td>
+				<td colspan="1" align="right">
+					<div>
+					    <input type="checkbox" id="mappingFormatJSON">
+					</div>
+				</td>				
+			</tr>
+		</table>
+	</div>
+
+	<div id="mapping" style="width: 75%; float:right; text-align: left;">
+		<div id="mappingJson"></div>
+		<div id="mappingTableDiv" class="widget-content">
+		<strong>Tabular format displays only most commonly used mapping attributes</strong>
+			<table cellpadding="0" cellspacing="0" border="0" class="display" id="mappingTable">
+					<thead>
+					</thead>
+					<tbody>
+					</tbody>								
+			</table>
+		</div>
+	</div>
 </div>
   </body>
 </html>

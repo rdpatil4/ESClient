@@ -35,7 +35,8 @@ var Config = {
    'DEFAULT_OPERATOR':'OR',
    'USE_LUCENE_QUERY_TYPE':true,
    'ENABLE_INDEX_DROP':false,
-   'SHOW_JSON_RESULS':false
+   'SHOW_JSON_RESULS':false,
+   'SHOW_MAPPING_INFO':true
 }
 ```
 Just point to the location of your Elasticsearch cluster (CLUSTER_URL) and you are good to go.

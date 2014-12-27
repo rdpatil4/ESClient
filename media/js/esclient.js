@@ -1,6 +1,8 @@
 
 var esCluster = new ESCluster();
+var esClusterOriginal = null;
 var oTable;
+var mapTable;
 var viewEditJSON;
 function ESNode(node)
 {
@@ -82,26 +84,42 @@ function getRoutingKeyUrl()
 function connectToES()
 {
 	var loc = $("#location").val();
+	// check the cluster health 
+	var cluster_state = "red";
+	var jqxhr = $.getJSON( loc + "/_cluster/health", function() {
+	}).done(function( healthData ) {
+		cluster_state = healthData.status;
+	});	
+	
     $('#index').find('option').remove().end();
 	var jqxhr = $.getJSON( loc + "/_cluster/state", function() {
 		})
 		 .done(function( data ) {
-			 	var count = 0;
-				// set the cluster name
-				$('#cluster').html('<strong>' + data.cluster_name + ' [' + loc + '] </strong>');
-			 	// indices
+			// store the return value in global variable
+			esClusterOriginal = data;
+			 	var masterNode;
+				// indices
 				$.each( data.metadata.indices, function( name, index) {
 					esCluster.addIndices(new ESIndex(name, index));
 				});
 			 	// nodes
 				$.each( data.nodes, function( name, node  ) {
+					if (name===data.master_node)
+					{
+						masterNode = node;
+					}
 					esCluster.addNodes(new ESNode(node));
 				});
 			 	$.each(esCluster.indices, function (key, value)
 			 	{
 					$('#index').append("<option  value='"+value.indexName+"'>"+value.indexName+"</option>");
+					$('#MappingIndex').append("<option  value='"+value.indexName+"'>"+value.indexName+"</option>");
+					
 			 	});
+				// set the cluster name
+				$('#cluster').html('<span style="font-weight:900">Cluster: </span><span style="background-color:' + cluster_state +'; color:white; font-weight:900">' + data.cluster_name + '</span><span style="font-weight:900">  &nbsp;&nbsp;&nbsp;[Master: '+ masterNode.name + ']</span>');				
 				$('#index').multiselect("refresh");
+				$('#MappingIndex').multiselect("refresh");
 				$('#connect').addClass("ui-state-disabled").attr("disabled", true);
 				$("#tabs" ).tabs({ active: 1 }); 
 		  })
@@ -156,8 +174,167 @@ function loadTypesForIndex(indxNameArr)
 	$.each(uniqueTypes, function(i, typeKey){
 		$('#indexTypes').append("<option  value='"+typeKey+"'>"+typeKey+"</option>");
 	});
-   	
 	$('#indexTypes').multiselect("refresh");
+}
+
+function loadMappingTypesForIndex(indxNameArr)
+{
+	$('#MappingIndexTypes').find('option').remove().end();
+	var uniqueTypes = [];
+	var types = [];
+	$.each(indxNameArr, function( index, indxName ) 
+	{
+		$.each(esCluster.indices, function (key, value)
+		{
+			if (value.indexName == indxName || (value.aliases.indexOf(indxName) > -1))
+			{
+				$.each(value.indexMappings, function (key, mapping)
+				{
+					// collect the types here.
+					types.push(key);
+				});
+			}
+		});
+	});
+	$.each(types, function(i, el){
+		if($.inArray(el, uniqueTypes) === -1) uniqueTypes.push(el);
+	});
+	$.each(uniqueTypes, function(i, typeKey){
+		$('#MappingIndexTypes').append("<option  value='"+typeKey+"'>"+typeKey+"</option>");
+	});
+   	
+	$('#MappingIndexTypes').multiselect("refresh");
+}
+
+function mappingColumnsForTable()
+{
+	var columns = [];
+	columns.push({ mData: 'fieldName' , sTitle : 'Field Name'});
+	columns.push({ mData: 'index' , sTitle : 'Index (Analyze)', sDefaultContent : 'analyzed'});
+	columns.push({ mData: 'type' , sTitle : 'Type'});
+	columns.push({ mData: 'include_in_all' , sTitle : "Include in _all", sDefaultContent : 'true'});
+	columns.push({ mData: 'analyzer' , sTitle : 'Analyzer', sDefaultContent : 'Global Default'});
+	columns.push({ mData: 'store' , sTitle : 'Store', sDefaultContent : 'false'});
+	columns.push({ mData: 'boost' , sTitle : 'Boost', sDefaultContent : '1.0'});
+	return columns;
+}
+
+
+function flattenJSON(jsonData, parentPropName) {
+    var result = [];
+	
+	$.each(jsonData, function(propName, jsonObj){
+		var subObj = jsonObj.properties;
+        if (subObj)
+		{
+			var subObjProps = flattenJSON(subObj, parentPropName ? parentPropName+"."+propName : propName);
+			result = result.concat(subObjProps);
+		}
+		else
+		{
+			result.push(parentPropName ? parentPropName+"."+propName : propName);
+		}
+	});
+    return result;
+}
+
+function flattenJSONForMappingTable(jsonData, parentPropName) {
+    var result = [];
+	
+	$.each(jsonData, function(propName, jsonObj){
+		var subObj = jsonObj.properties;
+        if (subObj)
+		{
+			var subObjProps = flattenJSONForMappingTable(subObj, parentPropName ? parentPropName+"."+propName : propName);
+			result = result.concat(subObjProps);
+		}
+		else
+		{
+			// Add field name to the JSON
+			jsonObj['fieldName'] = parentPropName ? parentPropName+"."+propName : propName;
+			result.push(jsonObj);
+		}
+	});
+    return result;
+}
+
+function showMapping()
+{
+	var esType = $("#MappingIndexTypes").val();
+	var esIndex = $("#MappingIndex").val();
+	var mappingJSON = getMappingJSON(esIndex, esType);
+
+	if ($("#mappingFormatJSON").is(':checked'))
+	{
+		$("#mappingTableDiv").hide();
+		$('#mappingJson').show();
+		$('#mappingJson').html(prettifyJson(mappingJSON, $('#mappingJson'), true));
+	}
+	else
+	{
+		$("#mappingTableDiv").show();
+		if (mapTable)
+		{
+			mapTable.fnDestroy();
+			mapTable.empty();
+		}
+		$('#mappingJson').hide();
+		// Shallow copy
+		var localMappingJSON = jQuery.extend(true, {}, mappingJSON);
+		var flattedTableJSON = flattenJSONForMappingTable(localMappingJSON);
+		var mappingCols = mappingColumnsForTable();
+		mapTable = $('#mappingTable').dataTable( {
+					"iDisplayLength": 20,
+					"bRetrieve": true,
+					"bDestroy": true,
+					"bProcessing": false,
+					"aoColumns": mappingCols,
+					"bJQueryUI": true,
+					 // Disable initial sort
+					"aaSorting": [],
+					"aaData": flattedTableJSON,
+					"sScrollY": 300,
+					"sScrollX": "100%"
+					} );
+		
+	}
+}
+
+function getMappingJSON(indxNameArr, esType)
+{
+	var types = [];
+	var stillFindingMapping = true;
+	var mappingInfo;
+	$.each(esClusterOriginal.metadata, function (metaInfoType, metaInfoVal)
+	{
+		if (metaInfoType == "indices" && stillFindingMapping)
+		{
+			$.each(metaInfoVal, function (indexName, indexDetails)
+			{
+				// collect the types here.
+				if($.inArray(indexName, indxNameArr) > -1 && stillFindingMapping)
+				{
+					$.each(indexDetails, function (propName, mappingDetails)
+					{
+						if (propName == "mappings" && stillFindingMapping)
+						{
+							$.each(mappingDetails, function (mappingName, details)
+							{
+								//if (mappingName == esType[0])
+								if($.inArray(mappingName, esType) > -1)
+								{
+									stillFindingMapping = false;
+									mappingInfo = details.properties;
+									return false;
+								}
+							});
+						}
+					});
+				}
+			});
+		}
+	});
+	return mappingInfo;
 }
 
 function populateSearchFields(colData)
@@ -224,7 +401,6 @@ function getQueryResultsColumns()
 	var indxNameArr = $("#index").val();
 	// reset the header 
 	var columns = [];
-	var autoCompleteSource = ["AND ", "OR ", "_exists_:", "_missing_:"];
 	var isTypeFound = false;
 	// add invisible column for the _id
 	columns.push({ "bVisible": true, "mData" : "_id", sTitle : "_id" });
@@ -240,7 +416,6 @@ function getQueryResultsColumns()
 					$.each(mapping.properties, function (propName, map)
 					{
 						columns.push({ mData: '_source.' + propName , sTitle : propName});
-						autoCompleteSource.push(propName +':');
 					});
 				isTypeFound = true;
 				return false;
@@ -255,24 +430,8 @@ function getQueryResultsColumns()
 	
 	var retData = new Object();
 	retData.cols = columns;
-	retData.autoCompleteSrc = autoCompleteSource;
 	return retData;
 }
-
-function getResultsData()
-{
-	var data = [];
-	var jqxhr = $.getJSON( getBaseUrl() + "_search", function() {
-		})
-		 .done(function( results ) {
-			data = formatResultsData(results);
-			//console.log( data );
-		  })
-		.fail(function() { console.log( "error" ); })
-		.always(function() { console.log( "complete" ); });
-	return data;	  
-}
-
 
 function formatResultsData(results)
 {
@@ -280,7 +439,6 @@ function formatResultsData(results)
 	var data = [];
 	$.each(results.hits.hits, function (key, value)
 	{
-		var row = [];
 		data.push(value);
 	});
 	return data;
@@ -525,27 +683,6 @@ function validateQueryAndSearch()
 	}
 		// perform the search now
 		searchIndex();
-	
-	/*
-	$.ajax({
-	   url: getBaseUrl() + "_validate/query",
-	   type: "GET",
-	   data: { "q" : queryText, "explain": true, "pretty": true}	
-	}).done(function ( validateResponse ) {
-		if (validateResponse.valid)
-		{
-			// perform the search now
-			searchIndex();
-		}
-		else
-		{
-			$("#dialog").dialog('option', 'title', 'Invalid query');
-			$("#dialog").text(validateResponse.explanations[0].error );
-			$( "#button-ok" ).attr("disabled", true).addClass("ui-state-disabled");
-			$('#dialog').dialog("open");
-			return;			
-		}
-	});	*/
 }
 
 function split( val ) {
@@ -570,14 +707,23 @@ function split( val ) {
 function setAutoCompleteForQuery()
 {
 	var colData = getQueryResultsColumns();
+	var esType = $("#indexTypes").val();
+	var esIndexArr = $("#index").val();
+	var mappingJSON = getMappingJSON(esIndexArr, esType);
+	var flatJSON = flattenJSON(mappingJSON);
+	var autoCompleteSrc  = [];
+	$.each(flatJSON, function(index,val){
+		autoCompleteSrc.push(val + ":");
+	});
+	var autoCompleteMasterList = ["AND ", "OR ", "_exists_:", "_missing_:"];
+	autoCompleteSrc = autoCompleteSrc.concat(autoCompleteMasterList);
 	var formattedData;
     $("#query").autocomplete({
         position: { my : "right top", at: "right bottom" },
         source: function(request, response) {
             var str = _leftMatch(request.term, $("#query")[0]);
             str = (str != null) ? str[0] : "";
-            response($.ui.autocomplete.filter(
-                    colData.autoCompleteSrc, str));
+            response($.ui.autocomplete.filter(autoCompleteSrc, str));
         },
         //minLength: 2,  // does have no effect, regexpression is used instead
         focus: function() {
@@ -618,10 +764,7 @@ function searchIndex()
 	{
 		sortField = "_score:desc";
 	}
-
-	var colData = getQueryResultsColumns();
 	var formattedData;
-	
 	if (oTable)
 	{
 		oTable.fnDestroy();
@@ -642,7 +785,7 @@ function searchIndex()
 			$('#jsonResults').html(prettifyJson(updatedJson, $('#jsonResults'), true));
 		}
 			formattedData = formatResultsData(results);
-			$("#totalResults").html('<strong> Total results found: [' + results.hits.total + ']</strong>');
+			$("#totalResults").html('<strong> Total results found: [' + results.hits.total + '] in '+ results.took +' ms</strong>');
 			oTable = $('#example').dataTable( {
 				"iDisplayLength": 20,
 			    "bRetrieve": true,
@@ -656,8 +799,7 @@ function searchIndex()
 				  /* Disable initial sort */
 				"aaSorting": [],
 				"fnInitComplete": function(oSettings, json) {
-
-					},
+				},
 				"fnDrawCallback": function( oSettings ) {
 						/* Add/remove class to a row when clicked on */
 						$('#example tr').click( function() {
