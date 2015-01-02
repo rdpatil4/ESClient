@@ -1,5 +1,5 @@
 var Config = {
-   'CLUSTER_URL':'http://localhost:9200', 
+   'CLUSTER_URL':'http://qldbclient1.qa.cyveillance.com:9200', 
    'THEME':'Pepper Grinder',
    'SEARCH_TYPE':'query_then_fetch',
    'FROM':0,

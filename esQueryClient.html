@@ -100,6 +100,9 @@ $(document).ready(function () {
 		  off_label: 'Tabular',
 		  checked: true
 		});
+	$("#mappingFormatJSON").change(function() {
+		showMapping();
+	});	
    $("#useLucene").switchButton({
 		  on_label: 'Lucene',
 		  off_label: 'DSL',
@@ -331,7 +334,13 @@ $(document).ready(function () {
     ]
      }); 
 	 
+	$("#luceneEscape").click(function(){
+		escapeLuceneChars();
+	});
+
+	setQueryLabel();	
 });
+
 
 </script>
 
@@ -344,6 +353,9 @@ $(document).ready(function () {
 				<div class="ui-widget">
 					<div class="ui-state-highlight ui-corner-all">
 						<p><span class="ui-icon ui-icon-info" style="float: left; margin-right: .3em;" ></span>
+							<button id="refreshConn" onclick="refreshConnection()" style="display: none; float: right; width: 25; height: 27px; margin-left: .5em;" title="Reconnect and refresh" >
+								<img src=".\media\images\refresh.png" height="17" width="20">
+							</button>						
 							<div id="cluster"><strong>Cluster not connected</strong></div>
 						</p>
 					</div>
@@ -431,6 +443,7 @@ $(document).ready(function () {
 			<td colspan="2" align="left">
 					<div>
 						  <textarea name="query" id="query" >*</textarea>
+						  <button id="luceneEscape" style="width: 50px; height: 30px;" title="Escape Lucene characters" ><img src=".\media\images\LuceneEscape.png" style="width: 25px; height: 25px;"></button>
 					</div>
 			</td>
 			<td  colspan="2" align="left">	

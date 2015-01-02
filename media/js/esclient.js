@@ -80,15 +80,30 @@ function getRoutingKeyUrl()
 	return "";
 }
 
+function refreshConnection()
+{
+	// clear index, index types and fields and clear the datatable
+	$('#index').find('option').remove().end();
+	$('#indexTypes').find('option').remove().end();
+	$('#indexFields').find('option').remove().end();
+	$('#index').multiselect("refresh");
+	$('#indexTypes').multiselect("refresh");
+	$('#indexFields').multiselect("refresh");	
+	connectToES();
+}
+
 
 function connectToES()
 {
+	// re-initialize the cluster variable
+	esCluster = new ESCluster();
 	var loc = $("#location").val();
 	// check the cluster health 
 	var cluster_state = "red";
 	var jqxhr = $.getJSON( loc + "/_cluster/health", function() {
 	}).done(function( healthData ) {
 		cluster_state = healthData.status;
+		$("#cluster").attr('title', JSON.stringify(healthData,null,4));
 	});	
 	
     $('#index').find('option').remove().end();
@@ -117,15 +132,35 @@ function connectToES()
 					
 			 	});
 				// set the cluster name
-				$('#cluster').html('<span style="font-weight:900">Cluster: </span><span style="background-color:' + cluster_state +'; color:white; font-weight:900">' + data.cluster_name + '</span><span style="font-weight:900">  &nbsp;&nbsp;&nbsp;[Master: '+ masterNode.name + ']</span>');				
+				$('#cluster').html('<span style="font-weight:900">Cluster: </span><span style="background-color:' + cluster_state +'; color:white; font-weight:900">' + data.cluster_name + '</span>'
+						+ '<span style="font-weight:900">  &nbsp;&nbsp;&nbsp;[Master: '+ masterNode.name + ']</span>');				
 				$('#index').multiselect("refresh");
 				$('#MappingIndex').multiselect("refresh");
 				$('#connect').addClass("ui-state-disabled").attr("disabled", true);
-				$("#tabs" ).tabs({ active: 1 }); 
+				$("#tabs" ).tabs({ active: 1 });
+				$('#refreshConn').show();
 		  })
-		.fail(function() { $('#cluster').html('<strong>Error connecting to: ' + loc + '</strong>'); })
-		.always(function() { console.log( "complete" ); });
+		.fail(function() { $('#cluster').html('<strong>Error connecting to: ' + loc + '</strong>'); });
 }
+
+function escapeLuceneChars()
+{
+	var queryText =  $("#query").val();
+	var luceneSpecialChrs = ['\\\\', '\\+', '\\-', '&&', '\\|\\|', '\\!', '\\(', '\\)', '\\{', '\\}', '\\[', '\\]', '\\^', '\\"', '\\~', '\\*', '\\?', '\\:'];
+	$.each(luceneSpecialChrs, function (key, value)
+	{
+		var regEx = new RegExp(value, 'g');
+		queryText = queryText.replace(regEx, value);
+	});
+	// show the escaped query in popup
+	$("#dialog").dialog('option', 'title', 'Escaped Lucene query');
+	$("#dialog").text( queryText ).removeClass("ui-state-disabled");
+	$( "#button-ok" ).addClass("ui-state-disabled").attr("disabled", true);
+	$('#dialog').dialog('option','width',400);
+	$('#dialog').dialog('option','height',200);				
+	$('#dialog').dialog("open");	
+}
+
 
 function showDropIndex()
 {
@@ -141,10 +176,12 @@ function setQueryLabel()
   if ($('#useLucene').is(':checked')){
 		$('#querySyntax').html("<strong>Lucene Query:</strong>");
 		$('#query').text("*:*");
+		$("#luceneEscape").show();
    }
    else{
 		$('#querySyntax').html("<strong>DSL Query:</strong>");
 		$('#query').text("{ \"query\": { \"match_all\" : { } } }");
+		$("#luceneEscape").hide();
 	}
 }
 
