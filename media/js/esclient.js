@@ -86,6 +86,10 @@ function refreshConnection()
 	$('#index').find('option').remove().end();
 	$('#indexTypes').find('option').remove().end();
 	$('#indexFields').find('option').remove().end();
+	$('#MappingIndex').find('option').remove().end();
+	$('#MappingIndexTypes').find('option').remove().end();
+	$('#MappingIndex').multiselect("refresh");
+	$('#MappingIndexTypes').multiselect("refresh");	
 	$('#index').multiselect("refresh");
 	$('#indexTypes').multiselect("refresh");
 	$('#indexFields').multiselect("refresh");	
