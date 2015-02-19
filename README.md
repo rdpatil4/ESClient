@@ -20,7 +20,7 @@ Elasticsearch client tool for easy search, edit and delete Index documents.
 
 ###Configuration:
 
-Configuraiton is done in the file **config.js** found in the root folder.
+Configuration is done in the file **config.js** found in the root folder.
 Default configuration looks like below:
 
 ```js
