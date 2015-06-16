@@ -1,5 +1,7 @@
 var Config = {
    'CLUSTER_URL':'http://localhost:9200', 
+   'AUTH_USER':null,
+   'AUTH_PASSWORD':null,
    'THEME':'Pepper Grinder',
    'SEARCH_TYPE':'query_then_fetch',
    'FROM':0,
@@ -25,4 +27,4 @@ var Config = {
    
    //Enable inspecting the mapping for index type
    'SHOW_MAPPING_INFO':false
-}
+};
