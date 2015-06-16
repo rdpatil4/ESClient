@@ -4,6 +4,7 @@ var esClusterOriginal = null;
 var oTable;
 var mapTable;
 var viewEditJSON;
+
 function ESNode(node)
 {
 	this.name = node.name;
@@ -65,6 +66,9 @@ function getBaseUrl(RecordIndexName)
 		indexName = $("#index").val();
 	}
 	var loc = $("#location").val();
+	$.ajaxSetup({
+		beforeSend: setAuthHeader
+	});
 	var url = loc + "/" + indexName + "/" + typeName + "/";
 	return url;
 }
@@ -102,6 +106,9 @@ function connectToES()
 	// re-initialize the cluster variable
 	esCluster = new ESCluster();
 	var loc = $("#location").val();
+	$.ajaxSetup({
+		beforeSend: setAuthHeader
+	});
 	// check the cluster health 
 	var cluster_state = "red";
 	var jqxhr = $.getJSON( loc + "/_cluster/health", function() {
@@ -145,6 +152,14 @@ function connectToES()
 				$('#refreshConn').show();
 		  })
 		.fail(function() { $('#cluster').html('<strong>Error connecting to: ' + loc + '</strong>'); });
+}
+
+function setAuthHeader(xhr) {
+	var user = $('#username').val();
+	var pass = $('#password').val();
+	if(!!user && !!pass) {
+		xhr.setRequestHeader("Authorization", "Basic " + btoa(user + ":" + pass));
+	}
 }
 
 function escapeLuceneChars()
@@ -514,6 +529,9 @@ function dropIndexOrType()
 		var indexNames = $("#index").val();
 		var typeName = $("#indexTypes").val();
 		var loc = $("#location").val();
+		$.ajaxSetup({
+			beforeSend: setAuthHeader
+		});
 		var dropUrl = loc + "/" + indexNames;
 		var msg = "Successfully dropped whole Index: [" + indexNames + "] and all its mappings";
 		if (typeName)
@@ -695,6 +713,9 @@ function validateQueryAndSearch()
 	var typeName = $("#indexTypes").val();
 	var indexName = $("#index").val();
 	var loc = $("#location").val();
+	$.ajaxSetup({
+		beforeSend: setAuthHeader
+	});
 	var queryText = $("#query").val();
 	var fields = $("#indexFields").val();
 
