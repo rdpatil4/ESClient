@@ -1,7 +1,7 @@
 Elasticsearch query client
 =========
 ```js
-For Elasticsearch 1.4 users:
+For Elasticsearch 1.4 and above users:
 You need to enable CORS in elasticsearch.yml by setting below line:
 http.cors.enabled: true or 
 http.cors.allow-origin value accordingly for this tool to work
