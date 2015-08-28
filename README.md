@@ -1,4 +1,4 @@
-Elasticsearch query client
+Elasticsearch query client/front end
 =========
 ```js
 For Elasticsearch 1.4 and above users:
