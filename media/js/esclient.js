@@ -1,10 +1,7 @@
-
 var esCluster = new ESCluster();
-var esClusterOriginal = null;
 var oTable;
 var mapTable;
 var viewEditJSON;
-
 function ESNode(node)
 {
 	this.name = node.name;
@@ -66,10 +63,10 @@ function getBaseUrl(RecordIndexName)
 		indexName = $("#index").val();
 	}
 	var loc = $("#location").val();
+	var url = loc + "/" + indexName + "/" + typeName + "/";
 	$.ajaxSetup({
 		beforeSend: setAuthHeader
-	});
-	var url = loc + "/" + indexName + "/" + typeName + "/";
+	});	
 	return url;
 }
 
@@ -96,7 +93,9 @@ function refreshConnection()
 	$('#MappingIndexTypes').multiselect("refresh");	
 	$('#index').multiselect("refresh");
 	$('#indexTypes').multiselect("refresh");
-	$('#indexFields').multiselect("refresh");	
+	$('#indexFields').multiselect("refresh");
+    // wipe out the cluster plot	
+	$("#ClusterContainer").html('');
 	connectToES();
 }
 
@@ -108,50 +107,61 @@ function connectToES()
 	var loc = $("#location").val();
 	$.ajaxSetup({
 		beforeSend: setAuthHeader
-	});
+	});		
 	// check the cluster health 
 	var cluster_state = "red";
-	var jqxhr = $.getJSON( loc + "/_cluster/health", function() {
-	}).done(function( healthData ) {
+	var jqxhr = $.when($.getJSON( loc + "/_cluster/health")).done(function( healthData ) {
 		cluster_state = healthData.status;
 		$("#cluster").attr('title', JSON.stringify(healthData,null,4));
-	});	
 	
-    $('#index').find('option').remove().end();
-	var jqxhr = $.getJSON( loc + "/_cluster/state", function() {
-		})
-		 .done(function( data ) {
-			// store the return value in global variable
-			esClusterOriginal = data;
-			 	var masterNode;
-				// indices
-				$.each( data.metadata.indices, function( name, index) {
-					esCluster.addIndices(new ESIndex(name, index));
-				});
-			 	// nodes
-				$.each( data.nodes, function( name, node  ) {
-					if (name===data.master_node)
+		$('#index').find('option').remove().end();
+		var jqxhr = $.getJSON( loc + "/_cluster/state", function() {
+			})
+			 .done(function( data ) {
+				 // store the local cluster URL for autocomplete of cluster urls ( localClusterURLs )
+				 storeLocalClusterURL(loc);
+				 // store the return value in global variable
+				esClusterOriginal = data;
+					var masterNode;
+					// indices
+					$.each( data.metadata.indices, function( name, index) {
+						esCluster.addIndices(new ESIndex(name, index));
+					});
+					// nodes
+					$.each( data.nodes, function( name, node ) {
+						if (name===data.master_node)
+						{
+							masterNode = node;
+						}
+						esCluster.addNodes(new ESNode(node));
+					});
+					var sortedIndices = [];
+					$.each(esCluster.indices, function (key, value)
 					{
-						masterNode = node;
-					}
-					esCluster.addNodes(new ESNode(node));
-				});
-			 	$.each(esCluster.indices, function (key, value)
-			 	{
-					$('#index').append("<option  value='"+value.indexName+"'>"+value.indexName+"</option>");
-					$('#MappingIndex').append("<option  value='"+value.indexName+"'>"+value.indexName+"</option>");
-					
-			 	});
-				// set the cluster name
-				$('#cluster').html('<span style="font-weight:900">Cluster: </span><span style="background-color:' + cluster_state +'; color:white; font-weight:900">' + data.cluster_name + '</span>'
-						+ '<span style="font-weight:900">  &nbsp;&nbsp;&nbsp;[Master: '+ masterNode.name + ']</span>');				
-				$('#index').multiselect("refresh");
-				$('#MappingIndex').multiselect("refresh");
-				$('#connect').addClass("ui-state-disabled").attr("disabled", true);
-				$("#tabs" ).tabs({ active: 1 });
-				$('#refreshConn').show();
-		  })
-		.fail(function() { $('#cluster').html('<strong>Error connecting to: ' + loc + '</strong>'); });
+						sortedIndices.push(value.indexName);
+					});
+					sortedIndices = sortedIndices.sort();
+					$.each(sortedIndices, function (key, value)
+					{
+						$('#index').append("<option  value='"+value+"'>"+value+"</option>");
+						$('#MappingIndex').append("<option  value='"+value+"'>"+value+"</option>");
+						
+					});
+					// set the cluster name
+					$('#cluster').html('<span style="font-weight:900">Cluster: </span><span style="background-color:' + cluster_state +'; color:black; font-weight:900">' + data.cluster_name + '</span>'
+							+ '<span style="font-weight:900">  &nbsp;&nbsp;&nbsp;[Master: '+ masterNode.name + ']</span>');				
+					$('#index').multiselect("refresh");
+					$('#MappingIndex').multiselect("refresh");
+					$('#connect').addClass("ui-state-disabled").attr("disabled", true);
+					$("#tabs" ).tabs({ active: 1 });
+					$('#refreshConn').show();
+			  })
+			.fail(function() { $('#cluster').html('<strong>Error connecting to: ' + loc + '</strong>'); });
+			// get the cluster layout data
+		var jqxhr = $.get( loc + "/_cat/shards").done(function( shardData ) {
+		globalClusterShardData  = shardData;	
+		});		
+	});
 }
 
 function setAuthHeader(xhr) {
@@ -161,6 +171,7 @@ function setAuthHeader(xhr) {
 		xhr.setRequestHeader("Authorization", "Basic " + btoa(user + ":" + pass));
 	}
 }
+
 
 function escapeLuceneChars()
 {
@@ -227,6 +238,7 @@ function loadTypesForIndex(indxNameArr)
 	$.each(types, function(i, el){
 		if($.inArray(el, uniqueTypes) === -1) uniqueTypes.push(el);
 	});
+	uniqueTypes = uniqueTypes.sort();
 	$.each(uniqueTypes, function(i, typeKey){
 		$('#indexTypes').append("<option  value='"+typeKey+"'>"+typeKey+"</option>");
 	});
@@ -255,10 +267,10 @@ function loadMappingTypesForIndex(indxNameArr)
 	$.each(types, function(i, el){
 		if($.inArray(el, uniqueTypes) === -1) uniqueTypes.push(el);
 	});
+	uniqueTypes = uniqueTypes.sort();
 	$.each(uniqueTypes, function(i, typeKey){
 		$('#MappingIndexTypes').append("<option  value='"+typeKey+"'>"+typeKey+"</option>");
 	});
-   	
 	$('#MappingIndexTypes').multiselect("refresh");
 }
 
@@ -314,12 +326,15 @@ function flattenJSONForMappingTable(jsonData, parentPropName) {
     return result;
 }
 
+
+
+
 function showMapping()
 {
 	var esType = $("#MappingIndexTypes").val();
 	var esIndex = $("#MappingIndex").val();
 	var mappingJSON = getMappingJSON(esIndex, esType);
-
+	
 	if ($("#mappingFormatJSON").is(':checked'))
 	{
 		$("#mappingTableDiv").hide();
@@ -463,13 +478,18 @@ function getQueryResultsColumns()
 	$.each(esCluster.indices, function (key, value)
 	{
 		if($.inArray(value.indexName, indxNameArr) > -1)
-		//if (value.indexName == indxName)
 		{
 			$.each(value.indexMappings, function (key, mapping)
 			{
 				if (key == indxType)
 				{
+					var sortedMapping = [];
 					$.each(mapping.properties, function (propName, map)
+					{
+						sortedMapping.push(propName);
+					});	
+					sortedMapping = sortedMapping.sort();
+					$.each(sortedMapping, function (inddx, propName)
 					{
 						columns.push({ mData: '_source.' + propName , sTitle : propName});
 					});
@@ -531,7 +551,7 @@ function dropIndexOrType()
 		var loc = $("#location").val();
 		$.ajaxSetup({
 			beforeSend: setAuthHeader
-		});
+		});		
 		var dropUrl = loc + "/" + indexNames;
 		var msg = "Successfully dropped whole Index: [" + indexNames + "] and all its mappings";
 		if (typeName)
@@ -619,7 +639,7 @@ function confirmDelete()
 		$("#dialog").dialog('option', 'title', 'Please confirm!');
 		$("#dialog").text("Please select atleast one row to delete" ).removeClass("ui-state-disabled");
 		$( "#button-ok" ).attr("disabled", true).addClass("ui-state-disabled");
-		$('#dialog').dialog("open");	
+		$('#dialog').dialog("open");
 	}	
 }
 
@@ -715,7 +735,7 @@ function validateQueryAndSearch()
 	var loc = $("#location").val();
 	$.ajaxSetup({
 		beforeSend: setAuthHeader
-	});
+	});	
 	var queryText = $("#query").val();
 	var fields = $("#indexFields").val();
 

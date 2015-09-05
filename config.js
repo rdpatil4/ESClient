@@ -2,7 +2,7 @@ var Config = {
    'CLUSTER_URL':'http://localhost:9200', 
    'AUTH_USER':null,
    'AUTH_PASSWORD':null,
-   'THEME':'Pepper Grinder',
+   'THEME':'Excite Bike',
    'SEARCH_TYPE':'query_then_fetch',
    'FROM':0,
    'DEFAULT_OPERATOR':'OR',
@@ -26,5 +26,8 @@ var Config = {
    'SHOW_JSON_RESULS':false,
    
    //Enable inspecting the mapping for index type
-   'SHOW_MAPPING_INFO':false
-};
+   'SHOW_MAPPING_INFO':true,
+
+   //Enable Cluster layout view and admin functions to be added
+   'SHOW_CLUSTER_TAB':true   
+}
