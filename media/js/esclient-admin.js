@@ -492,6 +492,7 @@ function plotCluster()
 			stateHtml+= "<li>Active: "+clusterHealthData.active_shards+"</li>";
 			stateHtml+= "<li>Unassigned: "+clusterHealthData.unassigned_shards+"</li>";
 			stateHtml+= "<li>Initializing: "+clusterHealthData.initializing_shards+"</li>";
+			stateHtml+= "<li>Relocating: "+clusterHealthData.relocating_shards+"</li>";
 			stateHtml+= '</ul>';
 			$("#plotHealth").html(stateHtml);
 			if ($("#plotByIndex").is(':checked')){
@@ -545,6 +546,7 @@ function refreshPlot()
 			stateHtml+= "<li>Active: "+clusterHealthData.active_shards+"</li>";
 			stateHtml+= "<li>Unassigned: "+clusterHealthData.unassigned_shards+"</li>";
 			stateHtml+= "<li>Initializing: "+clusterHealthData.initializing_shards+"</li>";
+			stateHtml+= "<li>Relocating: "+clusterHealthData.relocating_shards+"</li>";
 			stateHtml+= '</ul>';
 			$("#plotHealth").html(stateHtml);		
 			var localNodeShardDataArray = getIndexShardInfo(globalClusterShardData, null);
@@ -877,7 +879,7 @@ function getShardStateInfoForIndex(shardDataArray, indexName)
 			else if (shardData.type === "Primary"){
 				shardPrimaryCount++;
 			}
-			if (shardData.state != "STARTED"){
+			if (shardData.state != "STARTED" && shardData.state != "RELOCATING"){
 				unassignedShards.push({"shard": shardData.shard, "type": shardData.type, "size": shardData.size, "docs": shardData.docs, "state": shardData.state, "index": shardData.indexName });
 			}
 		}
