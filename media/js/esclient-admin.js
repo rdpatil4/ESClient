@@ -426,7 +426,10 @@ function appendPlotIndexDiv(indexName, parentId, leftPos, topPos, nodeShardDataA
 	var unassignedSharArray = shardStateInfo.unassignedShards;
 	var aliases = getAliasesForIndex(indexName);
 	var aliasInfoText = (aliases.length > 0) ? "Aliases:["+ aliases +"] ": "";
-	var indexDocInfo = "Total Docs: "+ indexInfo.data.primaries.docs.count + " Size: " + bytesToSize(indexInfo.data.primaries.store.size_in_bytes,2);
+	var indexDocInfo = "Total Docs: ";
+	if (indexInfo){
+		indexDocInfo = indexDocInfo + indexInfo.data.primaries.docs.count + " Size: " + bytesToSize(indexInfo.data.primaries.store.size_in_bytes,2);
+	}
 	var shardInfoText = "All ["+shardStateInfo.primary+"] primary " + ((shardStateInfo.replica > 0) ? "and ["+shardStateInfo.replica+"] replica shards are active. " : "shards are active. ");
 	var titleVal = shardInfoText + ' &#013; ' + indexDocInfo  + ' &#013; '+ aliasInfoText;
 	var hasUnassigned = (!unassignedSharArray || unassignedSharArray.length > 0) ? true : false;
