@@ -737,7 +737,7 @@ function showClusterInfo(cluster)
 {
 	var loc = $("#location").val();
 	$.ajax({
-	   url: loc + "/_cluster/state",
+	   url: loc + "/_cluster/stats",
 	   type: "GET"	
 	}).done(function ( data ) {
 	   var infoJson = data;
