@@ -76,6 +76,7 @@ function getRoutingKeyUrl()
 	if (routing)
 	{
 		var routingUrl = "?routing=" + encodeURIComponent(routing);
+        //var routingUrl = "?routing=" + routing;
 		return routingUrl;
 	}
 	return "";
@@ -650,10 +651,12 @@ function deleteRows()
 	$.each(rowsToDelete, function (key, row)
 	{
 		var rowID = encodeURIComponent(row.id);
+        var urlNow = getBaseUrl() + rowID + getRoutingKeyUrl();
 		$.ajax({
-		   url: getBaseUrl() + rowID + getRoutingKeyUrl(),
+		   url: urlNow,
 		   type: "DELETE",
 		   data: {"refresh": true},
+           contentType: "application/json",
 		   beforeSend: function ( xhr ) {
 		  }
 		}).done(function ( data ) {
@@ -681,8 +684,8 @@ function deleteRowsByLuceneQuery()
 {
 	var queryTextEncoded =  encodeURIComponent($("#query").val());
 		$.ajax({
-		   url: getBaseUrl() + "_query?q=" + queryTextEncoded,
-		   type: "DELETE"
+		   url: getBaseUrl() + "_delete_by_query?q=" + queryTextEncoded,
+		   type: "POST"
 		}).done(function ( data ) {
 			$('#example').empty();
 		}).error(function ( jqXHR, textStatus, errorThrown ) {
@@ -859,8 +862,8 @@ function searchIndex()
 	   url: getBaseUrl() + "_search",
 	   type: "GET",
 	   data: $('#useLucene').is(':checked') ?
-	   { "q": queryText , "sort": sortField, "from": $('#from').val(), "size": $('#size').val() , "lowercase_expanded_terms" : $('#lowerCaseExpandedTerms').is(':checked'), "analyze_wildcard" : $('#analyzeWildcard').is(':checked') , "search_type" : $('#searchType').val()[0] , "default_operator" : $('#defOperator').val()[0] }	
-	   :{ "source": queryText , "sort": sortField, "from": $('#from').val(), "size": $('#size').val() , "lowercase_expanded_terms" : $('#lowerCaseExpandedTerms').is(':checked'), "analyze_wildcard" : $('#analyzeWildcard').is(':checked') , "search_type" : $('#searchType').val()[0] , "default_operator" : $('#defOperator').val()[0] }	
+	   { "q": queryText , "sort": sortField, "from": $('#from').val(), "size": $('#size').val() , "analyze_wildcard" : $('#analyzeWildcard').is(':checked') , "search_type" : $('#searchType').val()[0] , "default_operator" : $('#defOperator').val()[0] }	
+	   :{ "source": queryText , "sort": sortField, "from": $('#from').val(), "size": $('#size').val() , "analyze_wildcard" : $('#analyzeWildcard').is(':checked') , "search_type" : $('#searchType').val()[0] , "default_operator" : $('#defOperator').val()[0] }	
 	}).done(function ( results ) {
 		if ($('#showJsonResults').is(':checked')){
 			var updatedJson = updateJSONFields(results.hits.hits);
@@ -1076,6 +1079,7 @@ function updateRow(dialog)
 	   url: getBaseUrl(recordIndexName) + rowID + getRoutingKeyUrl(),
 	   type: "PUT",
 	   data: updatedText,
+       contentType: "application/json",
 	   success: function (response) {
 		$(dialog).dialog("close");
 		$("#dialog").text("Successfully updated the row with id: " + decodeURIComponent(rowID));
